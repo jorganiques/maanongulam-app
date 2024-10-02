@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io'; // Import Socket.IO
 import connectDB from './src/config/db.js';
 import setupMiddlewares from './src/middlewares/setupMiddlewares.js';
-//import routes from './routes/setupRoutes.js'; // Adjust the path as needed
+import routes from './src/routes/setupRoutes.js'; // Adjust the path as needed
 
 dotenv.config();
 
@@ -48,7 +48,7 @@ connectDB()
     setupMiddlewares(app);
 
     // Setup routes
-    // routes(app);
+    routes(app);
 
     // Generic route
     app.get('/', (req, res) => {
