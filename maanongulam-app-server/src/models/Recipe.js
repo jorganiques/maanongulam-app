@@ -12,7 +12,6 @@ const recipeSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false },
   lastUpdated: { type: Date, default: Date.now },
   recipeId: { type: String, default: uuidv4, unique: true },
-  favorites: { type: [String], default: [] },
 });
 
 // Update lastUpdated field before saving
