@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { FaBars } from 'react-icons/fa';
 import RecipeGrid from '../components/RecipeGrid';
 import SearchInput from '../components/SearchInput';
 import Chat from '../components/Chat';
 import CategoriesCarousel from '../components/CategoriesCarousel';
-import RecipeDetail from '../components/RecipeDetail';
+import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
+import { useParams } from 'react-router-dom';
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const navigate = useNavigate(); 
+  const { recipeId } = useParams(); // Get the recipeId from the URL
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleChat = () => setIsChatOpen(!isChatOpen);
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategoryId(categoryId);
-    setSelectedRecipeId(null); // Clear selected recipe when a category is selected
   };
 
-  const handleRecipeSelect = (recipeId) => setSelectedRecipeId(recipeId);
+  const handleRecipeSelect = (recipeId) => {
+    navigate(`/recipes/${recipeId}`); // Navigate to RecipeDetail page
+  };
 
   const handleHomeClick = () => {
     setSelectedCategoryId(null); // Reset selected category on home click
-    setSelectedRecipeId(null); // Reset selected recipe on home click
   };
 
   const handleLogout = () => {
@@ -68,19 +69,19 @@ const Home = () => {
       
       {/* Main Content */}
       <main className="flex-grow">
-        {!selectedRecipeId ? (
-          <>
-            <section className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
-              style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }}>
-              <h2 className="text-3xl text-black font-bold">Discover Delicious Recipes</h2>
-              <p className="text-lg text-black">Explore, Cook, Enjoy!</p>
-              <SearchInput />
-            </section>
-            <CategoriesCarousel onCategorySelect={handleCategorySelect} />
-            <RecipeGrid selectedCategoryId={selectedCategoryId} onRecipeSelect={handleRecipeSelect} />
-          </>
+        <section className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
+          style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }}>
+          <h2 className="text-3xl text-black font-bold">Discover Delicious Recipes</h2>
+          <p className="text-lg text-black">Explore, Cook, Enjoy!</p>
+          <SearchInput />
+        </section>
+        <CategoriesCarousel onCategorySelect={handleCategorySelect} />
+        
+        {/* Render RecipeDetail if recipeId is present */}
+        {recipeId ? (
+          <RecipeDetail recipeId={recipeId} />
         ) : (
-          <RecipeDetail recipeId={selectedRecipeId} />
+          <RecipeGrid selectedCategoryId={selectedCategoryId} onRecipeSelect={handleRecipeSelect} />
         )}
       </main>
 

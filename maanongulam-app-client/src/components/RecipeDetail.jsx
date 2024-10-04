@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom'; // Import useParams
 
 const InteractionStats = ({ totalLikes, totalComments }) => (
   <div className="flex items-center mb-4">
@@ -27,7 +28,8 @@ const InteractionButtons = () => (
   </div>
 );
 
-const RecipeDetail = ({ recipeId }) => {  // Accept recipeId as a prop
+const RecipeDetail = () => {
+  const { recipeId } = useParams(); // Get recipeId from URL params
   const [recipe, setRecipe] = useState(null);
   const [comments, setComments] = useState([]);
   const [ratings, setRatings] = useState([]);
@@ -46,14 +48,14 @@ const RecipeDetail = ({ recipeId }) => {  // Accept recipeId as a prop
         setRatings(ratingsResponse.data);
 
         const likesResponse = await axios.get(`http://localhost:5000/api/ratings/likes/${recipeId}`);
-        setTotalLikes(likesResponse.data.likes);  // Set total likes from the response
+        setTotalLikes(likesResponse.data.likes); // Set total likes from the response
       } catch (error) {
         console.error("Error fetching recipe details:", error);
       }
     };
 
     if (recipeId) {
-      fetchData();  // Fetch data only if a recipeId is provided
+      fetchData(); // Fetch data only if a recipeId is provided
     }
   }, [recipeId]);
 
@@ -88,9 +90,10 @@ const RecipeDetail = ({ recipeId }) => {  // Accept recipeId as a prop
                 <span key={index} className="text-yellow-500">&#9733;</span>  // Star symbol
               ))}
               {Array.from({ length: 5 - rating.rating }).map((_, index) => (
-                <span key={index} className="text-gray-300">&#9734;</span>  // Empty star symbol
+                <span key={index} className="text-gray-300">&#9733;</span> // Empty star symbol
               ))}
             </span>
+            <span className="ml-2">by {rating.username}</span>
           </li>
         ))}
       </ul>
