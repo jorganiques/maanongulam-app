@@ -7,6 +7,7 @@ import Chat from '../components/Chat';
 import CategoriesCarousel from '../components/CategoriesCarousel';
 import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
 import logo from '../assets/maulogo.png';
+import backgroundImage from '../assets/table3.png'
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,24 +39,36 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
-      <nav className="flex items-center justify-between p-4 bg-white shadow" style={{ backgroundColor: 'rgba(255, 238, 173, 0.1)' }}>
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center', 
+        backgroundRepeat: 'no-repeat', 
+      }}
+    >
+      {/* Navbar */}
+      <nav
+        className="flex items-center justify-between p-4 bg-white shadow"
+        style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)' }} // Transparent background for the navbar
+      >
         {/* Logo - Clickable and Refreshes the Homepage */}
         <Link to="/">
           <img
-            src={logo} 
+            src={logo} // Replace 'logo' with the actual path to the logo image if necessary
             alt="Ma! Anong ulam? Logo"
-            className="h-32 -mt-6 -mb-4" 
+            className="h-32 -mt-7 -mb-5"
           />
         </Link>
-
+  
         {/* Create Post Button and Profile Picture Dropdown Container */}
         <div className="flex items-center space-x-4">
           {/* Create Post Button */}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <button className="bg-orange-400 font-recia text-white px-4 py-2 rounded hover:bg-red-900">
             Create Recipe
           </button>
-
+  
           {/* Profile Picture Dropdown */}
           <div className="relative">
             <button onClick={toggleDropdown} className="focus:outline-none">
@@ -81,36 +94,49 @@ const Home = () => {
             )}
           </div>
         </div>
-      </nav>  
-
+      </nav>
+  
       {/* Main Content */}
       <main className="flex-grow">
-        <section className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
-          style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }}>
-          <h2 className="text-3xl text-black font-bold">Discover Delicious Recipes</h2>
-          <p className="text-lg text-black">Is there anything specific you're craving today? 🍕🍫🍦</p>
+        <section
+          className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
+          style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }} // Replace or keep the Unsplash image for this section
+        >
+          <h2 className="text-7xl text-black font-bold font-zina">
+            Discover. Delicious. Recipes.
+          </h2>
+          <p className="text-2xl text-black font-recia">
+            Is there anything specific you're craving today?
+          </p>
           <SearchInput />
         </section>
         <CategoriesCarousel onCategorySelect={handleCategorySelect} />
-        
+  
         {/* Render RecipeDetail if recipeId is present */}
         {recipeId ? (
           <RecipeDetail recipeId={recipeId} />
         ) : (
-          <RecipeGrid selectedCategoryId={selectedCategoryId} onRecipeSelect={handleRecipeSelect} />
+          <RecipeGrid
+            selectedCategoryId={selectedCategoryId}
+            onRecipeSelect={handleRecipeSelect}
+          />
         )}
       </main>
-
+  
       {/* Footer */}
-      <footer className="bg-white p-4 text-center shadow mt-4">
-        <p className="text-black">&copy; 2024 Ma! Anong ulam? All rights reserved.</p>
+      <footer className="bg-white p-2 text-center shadow mt-4"
+      style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)'}}>
+        <p className="text-black">&copy; 2024 Kurimau. All rights reserved.</p>
       </footer>
-
+  
       {/* Chat Popup Button */}
-      <button onClick={toggleChat} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 fixed bottom-5 right-5">
+      <button
+        onClick={toggleChat}
+        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 fixed bottom-5 right-5"
+      >
         Chat
       </button>
-
+  
       {/* Chat Popup */}
       {isChatOpen && (
         <div className="fixed bottom-20 right-5 w-80 bg-white shadow-lg rounded-lg p-4">
@@ -119,6 +145,7 @@ const Home = () => {
       )}
     </div>
   );
+  
 };
 
 export default Home;
