@@ -8,7 +8,6 @@ import CategoriesCarousel from '../components/CategoriesCarousel';
 import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
 import logo from '../assets/maulogo.png';
 
-
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -51,7 +50,7 @@ const Home = () => {
         </Link>
 
         {/* Create Post Button and Profile Picture Dropdown Container */}
-        <div className="flex items-center space-x-4"> {/* Flexbox and spacing */}
+        <div className="flex items-center space-x-4">
           {/* Create Post Button */}
           <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Create Recipe
@@ -61,7 +60,7 @@ const Home = () => {
           <div className="relative">
             <button onClick={toggleDropdown} className="focus:outline-none">
               <img
-                src="https://via.placeholder.com/40" // Replace with actual profile image URL
+                src="https://via.placeholder.com/40"
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />
@@ -106,6 +105,11 @@ const Home = () => {
       <footer className="bg-white p-4 text-center shadow mt-4">
         <p className="text-black">&copy; 2024 Ma! Anong ulam? All rights reserved.</p>
       </footer>
+
+      {/* Chat Popup Button */}
+      <button onClick={toggleChat} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 fixed bottom-5 right-5">
+        Chat
+      </button>
 
       {/* Chat Popup */}
       {isChatOpen && (
