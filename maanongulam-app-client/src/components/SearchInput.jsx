@@ -30,15 +30,15 @@ const SearchInput = () => {
   };
 
   return (
-    <form onSubmit={handleSearchSubmit} className="flex mt-4">
+    <form onSubmit={handleSearchSubmit} className="flex mt-4 font-recia">
       <input
         type="text"
         value={searchTerm}
         onChange={handleSearchChange}
-        placeholder="Search recipes..."
-        className="p-2 border rounded-l"
+        placeholder="Search for recipes here..."
+        className="p-4 w-full border rounded-l"
       />
-      <button type="submit" className="p-2 bg-blue-500 text-white rounded-r">
+      <button type="submit" className="p-4 bg-orange-400 text-white rounded-r hover:bg-red-900">
         <FaSearch />
       </button>
     </form>

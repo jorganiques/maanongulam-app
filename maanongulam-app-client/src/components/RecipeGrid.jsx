@@ -26,7 +26,7 @@ const RecipeGrid = ({ selectedCategoryId, onRecipeSelect }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-black">Featured Recipes</h2>
+      <h2 className="font-zina text-2xl font-bold mb-4 text-black">Featured Recipes</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {recipes.length > 0 ? (
           recipes.map(recipe => (

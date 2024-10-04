@@ -5,8 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        recia: ['Recia', 'sans-serif'],
+        zina: ['Zina', 'serif'],
+      },
+    },
   },
   plugins: [],
 }
-

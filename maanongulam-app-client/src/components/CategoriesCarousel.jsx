@@ -38,10 +38,10 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
         {categories.slice(currentIndex, currentIndex + categoriesToShow).map((category) => (
           <div 
             key={category.categoryId} 
-            className="bg-white shadow rounded p-2 m-1 transition-transform duration-300 cursor-pointer"
+            className="font-zina bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition-transform duration-300 cursor-pointer"
             onClick={() => handleCategoryClick(category.categoryId)} // Add onClick here
           >
-            <h3 className="text-lg font-semibold">{category.categoryName}</h3>
+            <h3 className="text-2xl font-semibold">{category.categoryName}</h3>
             {category.categoryImageUrl && (
               <img src={category.categoryImageUrl} alt={category.categoryName} className="w-full h-32 object-cover rounded mt-2" />
             )}
