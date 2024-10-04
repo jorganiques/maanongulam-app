@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   contactNumber: { type: String }, // Added contactNumber
   createdAt: { type: Date, default: Date.now },
-  lastLogin: { type: Date } // Field to store the last login timestamp
+  lastLogin: { type: Date }, // Field to store the last login timestamp
+  isDeleted: { type: Boolean, default: false }, 
+  isDeactivated: { type: Boolean, default: false } 
 });
 
 // Hash password before saving user
