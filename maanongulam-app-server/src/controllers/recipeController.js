@@ -209,3 +209,19 @@ export const fetchAndSaveRecipesByCategory = async (req, res) => {
         res.status(500).json({ message: 'Error fetching and saving recipes', error: error.message });
     }
 };
+
+// Get Recipes by Category ID
+export const getRecipesByCategoryId = async (req, res) => {
+    const { categoryId } = req.params;
+  
+    try {
+        const recipes = await Recipe.find({ categoryId, isDeleted: false });
+        if (recipes.length === 0) {
+            return res.status(404).json({ message: 'No recipes found for this category' });
+        }
+        res.status(200).json(recipes);
+    } catch (error) {
+        console.error('Error fetching recipes by category:', error);
+        res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+    }
+  };

@@ -7,22 +7,26 @@ import {
   updateRecipe, 
   deleteRecipe, 
   searchRecipes,
-  fetchAndSaveRecipesByCategory // Import the new function 
+  fetchAndSaveRecipesByCategory, 
+  getRecipesByCategoryId
 } from '../controllers/recipeController.js';
 
 const router = express.Router();
 
-// Route for creating a recipe with image upload - DONE
+// Route for creating a recipe with image upload
 router.post('/', upload.single('image'), createRecipe);
 
-// GET /recipes - Get all recipes - DONE
+// GET /recipes - Get all recipes
 router.get('/', getAllRecipes);
 
-// GET /recipes/search - Search for recipes - DONE
+// GET /recipes/search - Search for recipes
 router.get('/search', searchRecipes); // This should be defined last
 
-// GET /recipes/:recipeId - Get a recipe by ID - DONE
+// GET /recipes/:recipeId - Get a recipe by ID
 router.get('/:recipeId', getRecipeById);
+
+// GET /recipes/category/:categoryId - Get recipes by category ID
+router.get('/category/:categoryId', getRecipesByCategoryId);
 
 // Route for updating a recipe with image upload
 router.put('/:recipeId', upload.single('image'), updateRecipe);
