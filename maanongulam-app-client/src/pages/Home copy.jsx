@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect here
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom'; 
 import { FaBars } from 'react-icons/fa';
 import RecipeGrid from '../components/RecipeGrid';
@@ -7,19 +7,15 @@ import Chat from '../components/Chat';
 import CategoriesCarousel from '../components/CategoriesCarousel';
 import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
 import logo from '../assets/maulogo.png';
-import backgroundImage from '../assets/table3.png';
-import Modal from 'react-modal'; // Import Modal
-import AccountSettings from '../pages/AccountSettings'; // Import AccountSettings
+import backgroundImage from '../assets/table3.png'
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Profile dropdown state
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const navigate = useNavigate(); 
   const { recipeId } = useParams(); // Get the recipeId from the URL
-  const userId = localStorage.getItem('userId'); // Get userId from local storage
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleChat = () => setIsChatOpen(!isChatOpen);
@@ -40,18 +36,6 @@ const Home = () => {
   const handleLogout = () => {
     localStorage.removeItem('userId'); 
     navigate('/auth'); 
-  };
-
-  useEffect(() => {
-    Modal.setAppElement('#root'); // Add your app element ID here
-  }, []);
-
-  const openModal = () => {
-    setIsModalOpen(true); // Open the modal
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false); // Close the modal
   };
 
   return (
@@ -97,9 +81,9 @@ const Home = () => {
             {isDropdownOpen && (
               <ul className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48">
                 <li className="px-4 py-2 hover:bg-gray-100">
-                  <button onClick={openModal} className="text-black">
+                  <Link to="/account-settings" className="text-black">
                     Account Settings
-                  </button>
+                  </Link>
                 </li>
                 <li className="px-4 py-2 hover:bg-gray-100">
                   <button onClick={handleLogout} className="text-red-500">
@@ -159,23 +143,9 @@ const Home = () => {
           <Chat />
         </div>
       )}
-
-      {/* Modal for Account Settings */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Account Settings Modal"
-        className="modal" // Add your custom styles
-        overlayClassName="overlay" // Add your custom overlay styles
-      >
-        <h2 className="text-xl font-bold">Account Settings</h2>
-        <AccountSettings userId={userId} onClose={closeModal} /> {/* Pass userId to AccountSettings */}
-        <button onClick={closeModal} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-          Close
-        </button>
-      </Modal>
     </div>
   );
+  
 };
 
 export default Home;

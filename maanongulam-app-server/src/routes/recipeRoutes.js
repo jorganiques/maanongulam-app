@@ -20,7 +20,7 @@ router.post('/', upload.single('image'), createRecipe);
 router.get('/', getAllRecipes);
 
 // GET /recipes/search - Search for recipes
-router.get('/search', searchRecipes); // This should be defined last
+router.get('/search', searchRecipes); 
 
 // GET /recipes/:recipeId - Get a recipe by ID
 router.get('/:recipeId', getRecipeById);
@@ -31,10 +31,10 @@ router.get('/category/:categoryId', getRecipesByCategoryId);
 // Route for updating a recipe with image upload
 router.put('/:recipeId', upload.single('image'), updateRecipe);
 
-// DELETE /recipes/:recipeId - Delete a recipe - DONE
+// DELETE /recipes/:recipeId - Delete a recipe
 router.delete('/:recipeId', deleteRecipe);
 
-// Route for fetching and saving recipes by category
-router.post('/fetch-and-save/userId/:userId/categoryId/:categoryId/categoryName/:categoryName', fetchAndSaveRecipesByCategory); // New route
+// Utility Route for fetching and saving recipes by category
+router.post('/fetch-and-save/userId/:userId/categoryId/:categoryId/categoryName/:categoryName', fetchAndSaveRecipesByCategory);
 
 export default router;

@@ -12,9 +12,6 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    // cloud_name: 'du8fsnwks',
-    // api_key: '525697365987875',
-    // api_secret: '0Q1WTEm_UK9BDEuVLIXVOp4Jn-Y',
 });
 
 // Set up multer storage

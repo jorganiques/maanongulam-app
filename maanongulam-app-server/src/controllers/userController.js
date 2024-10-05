@@ -137,3 +137,20 @@ export const updateUser = async (req, res) => {
       handleError(res, 'Error updating user', error);
   }
 };
+
+// Get user by userId
+export const getUserById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      const user = await User.findOne({ userId });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      const { password, ...userDetails } = user.toObject();
+      res.status(200).json(userDetails);
+  } catch (error) {
+      handleError(res, 'Error fetching user', error);
+  }
+};
