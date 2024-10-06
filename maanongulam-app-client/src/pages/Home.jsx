@@ -123,10 +123,10 @@ const Home = () => {
           className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
           style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }} // Replace or keep the Unsplash image for this section
         >
-          <h2 className="text-7xl text-black font-bold font-zina">
+          <h2 className="text-7xl text-orange-400 font-bold font-zina">
             Discover. Delicious. Recipes.
           </h2>
-          <p className="text-2xl text-black font-recia">
+          <p className="text-2xl text-red-900 font-recia">
             Is there anything specific you're craving today?
           </p>
           <SearchInput />

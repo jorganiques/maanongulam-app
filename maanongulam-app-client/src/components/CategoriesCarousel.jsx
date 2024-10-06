@@ -38,7 +38,7 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
         {categories.slice(currentIndex, currentIndex + categoriesToShow).map((category) => (
           <div 
             key={category.categoryId} 
-            className="font-zina bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition-transform duration-300 cursor-pointer"
+            className="text-red-900 font-recia bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition-transform duration-300 cursor-pointer"
             onClick={() => handleCategoryClick(category.categoryId)} // Add onClick here
           >
             <h3 className="text-2xl font-semibold">{category.categoryName}</h3>

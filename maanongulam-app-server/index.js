@@ -1,13 +1,10 @@
-import express from 'express';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io'; 
 import connectDB from './src/config/db.js';
-import setupMiddlewares from './src/middlewares/setupMiddlewares.js';
-import routes from './src/routes/setupRoutes.js'; 
+import app from './src/middlewares/app.js';
 
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
@@ -43,16 +40,6 @@ connectDB()
       });
     });
 
-    // Middleware setup
-    setupMiddlewares(app);
-
-    // Setup routes
-    routes(app);
-
-    // Generic route
-    app.get('/', (req, res) => {
-      res.send('Welcome to the Ma! Anong Ulam? App!');
-    });
   })
   .catch((error) => {
     console.error('Failed to connect to MongoDB:', error);
