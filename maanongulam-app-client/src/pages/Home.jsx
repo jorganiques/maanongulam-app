@@ -97,6 +97,11 @@ const Home = () => {
             {isDropdownOpen && (
               <ul className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48">
                 <li className="px-4 py-2 hover:bg-gray-100">
+                  <button onClick={() => navigate('/profile')} className="text-black">
+                    My Profile
+                  </button>
+                </li>
+                <li className="px-4 py-2 hover:bg-gray-100">
                   <button onClick={openModal} className="text-black">
                     Account Settings
                   </button>

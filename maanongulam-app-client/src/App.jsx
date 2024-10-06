@@ -8,6 +8,7 @@ import CreateRecipe from './pages/CreateRecipe';
 import Chat from './components/Chat';
 import RecipeDetail from './components/RecipeDetail'; 
 import AccountSettings from './pages/AccountSettings'; // Import AccountSettings
+import MyProfile from './pages/Profile'; // Import the MyProfile component
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/account-settings" element={<AccountSettings />} /> {/* Add route for AccountSettings */}
+          <Route path="/profile" element={<MyProfile />} /> {/* Define the route for MyProfile */}
         </Routes>
       </Router>
     </RecipeProvider>
