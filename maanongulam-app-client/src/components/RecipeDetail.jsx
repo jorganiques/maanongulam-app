@@ -1,33 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom'; // Import useParams
-import backgroundImage from '../assets/table3.png'
-
-const InteractionStats = ({ totalLikes, totalComments }) => (
-  <div className="flex items-center mb-4">
-    <span className="flex items-center mr-6">
-      <span className="text-blue-500">&#128077;</span> {/* Like symbol */}
-      <span className="ml-2">{totalLikes} Likes</span>
-    </span>
-    <span className="flex items-center">
-      <button className="text-gray-600 hover:text-gray-800 mr-2">
-        💬 Comment
-      </button>
-      <span>{totalComments} Comments</span>
-    </span>
-  </div>
-);
-
-const InteractionButtons = () => (
-  <div className="flex items-center">
-    <button className="text-gray-600 hover:text-gray-800 mr-4">
-      💬 Comment
-    </button>
-    <button className="text-gray-600 hover:text-gray-800 mr-4">
-      🔗 Share
-    </button>
-  </div>
-);
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { FaThumbsUp, FaComment, FaShareAlt, FaArrowLeft } from 'react-icons/fa'; // Import back arrow icon
+import backgroundImage from '../assets/table3.png';
 
 const RecipeDetail = () => {
   const { recipeId } = useParams(); // Get recipeId from URL params
@@ -35,6 +10,9 @@ const RecipeDetail = () => {
   const [comments, setComments] = useState([]);
   const [ratings, setRatings] = useState([]);
   const [totalLikes, setTotalLikes] = useState(0);
+  const [likes, setLikes] = useState(0); // Added state for likes
+
+  const navigate = useNavigate(); // Use useNavigate to go back to the previous page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +28,7 @@ const RecipeDetail = () => {
 
         const likesResponse = await axios.get(`http://localhost:5000/api/ratings/likes/${recipeId}`);
         setTotalLikes(likesResponse.data.likes); // Set total likes from the response
+        setLikes(likesResponse.data.likes); // Set the initial likes
       } catch (error) {
         console.error("Error fetching recipe details:", error);
       }
@@ -60,69 +39,92 @@ const RecipeDetail = () => {
     }
   }, [recipeId]);
 
+  const handleLike = () => {
+    setLikes(likes + 1); // Increment likes when the button is clicked
+    // Optionally, you can send this like to the backend using an API call
+    // axios.post('http://localhost:5000/api/likes', { recipeId, likes: likes + 1 });
+  };
+
   if (!recipe) return <p>Loading...</p>;
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col items-center justify-center"
       style={{
         backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center', 
-        backgroundRepeat: 'no-repeat', 
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="container mx-auto p-4 bg-cover bg-center">
-        <h2 className="text-orange-400 font-recia text-3xl font-bold mb-4">{recipe.title}</h2>
-        <div className="font-recia text-black text-lg grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-64 object-cover mb-4" />
-          </div>
-          <div>
-            <p className=""><strong>Ingredients:</strong> {recipe.ingredients.join(', ')}</p>
-          </div>
-          <div>
-            <p><strong>Instructions:</strong> {recipe.instructions}</p>
-          </div>
-          <div className="col-span-2">
-            <InteractionStats totalLikes={totalLikes} totalComments={comments.length} />
-            <InteractionButtons />
-          </div>
+      {/* Back Button */}
+      <button 
+        onClick={() => navigate(-1)} // Navigate back to the previous page
+        className="absolute top-4 left-4 flex items-center text-gray-600 hover:text-gray-800 bg-white p-2 rounded-full shadow-md"
+      >
+        <FaArrowLeft className="mr-2" /> Back
+      </button>
+
+      {/* Book Layout */}
+      <div className="w-full max-w-5xl p-4 bg-white rounded-lg shadow-lg flex flex-col md:flex-row space-x-4">
+        
+        {/* Left Page (Title, Image, Creator) */}
+        <div className="w-full md:w-1/2 bg-gray-50 p-6 overflow-y-auto h-96 border-r-4">
+          <h2 className="text-orange-400 font-recia text-3xl font-bold mb-4">{recipe.title}</h2>
+          <img
+            src={recipe.imageUrl}
+            alt={recipe.title}
+            className="w-full h-48 object-cover mb-4 rounded-md"
+          />
+          <p className="text-black text-lg">Created by: {recipe.creatorName}</p>
         </div>
-        <div className="mt-6">
-          <h3 className="mb-2">Comments</h3>
-          <ul>
-            {comments.map(comment => (
-              <li key={comment.commentId} className="border-b py-2">{comment.comment}</li>
-            ))}
-          </ul>
-          <h3 className="mt-6 mb-2">Ratings</h3>
-          <ul className="flex flex-col space-y-2">
-            {ratings.map(rating => (
-              <li key={rating.ratingId} className="border-b py-2 flex items-center">
-                <span className="flex items-center">
-                  {Array.from({ length: rating.rating }).map((_, index) => (
-                    <span key={index} className="text-yellow-500">★</span>
-                  ))}
-                  {Array.from({ length: 5 - rating.rating }).map((_, index) => (
-                    <span key={index} className="text-gray-300">★</span>
-                  ))}
-                </span>
-                <span className="ml-2">by {rating.username}</span>
-              </li>
-            ))}
-          </ul>
+  
+        {/* Right Page (Ingredients, Instructions) */}
+        <div className="w-full md:w-1/2 bg-gray-50 p-6 overflow-y-auto h-96">
+          <h3 className="text-black text-2xl font-bold mb-2">Ingredients</h3>
+          <p className="text-black mb-4">{recipe.ingredients.join(', ')}</p>
+          
+          <h3 className="text-black text-2xl font-bold mb-2">Instructions</h3>
+          <p className="text-black">{recipe.instructions}</p>
         </div>
+      </div>
+  
+      {/* Likes, Comments, Share Section */}
+      <div className="w-full max-w-5xl p-4 bg-white mt-6 rounded-lg shadow-lg flex justify-between items-center">
+        {/* Likes Section */}
+        <div className="flex items-center">
+          <button onClick={handleLike} className="flex items-center space-x-1">
+            <FaThumbsUp className="text-blue-500" />
+            <span>{likes}</span>
+          </button>
+        </div>
+        
+        {/* Comments Section */}
+        <div className="flex items-center">
+          <FaComment className="text-gray-500" />
+          <span className="ml-2">{comments.length} Comments</span>
+        </div>
+        
+        {/* Share Button */}
+        <div>
+          <button className="flex items-center space-x-1">
+            <FaShareAlt className="text-green-500" />
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+  
+      {/* Comments List */}
+      <div className="w-full max-w-5xl mt-4 bg-white p-4 rounded-lg shadow-lg">
+        <h3 className="text-lg font-bold">Comments</h3>
+        <ul>
+          {comments.map((comment) => (
+            <li key={comment.commentId} className="border-b py-2">{comment.comment}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );
-  
-  
-  
-  
-  
-  
-  
 };
 
 export default RecipeDetail;
