@@ -9,7 +9,7 @@ const RecipeCard = ({ recipe, onClick }) => {
         alt={recipe.title} 
       />
       <div className="p-4">
-        <h3 className="font-bold font-zina text-lg text-black">{recipe.title}</h3>
+        <h3 className="font-bold font-recia text-lg text-red-900">{recipe.title}</h3>
       </div>
     </div>
   );
