@@ -1,13 +1,15 @@
 import axios from 'axios';
 import mongoose from 'mongoose';
 import Category from '../models/Category.js'; // Corrected import
+import dotenv from 'dotenv';
 
-// MongoDB connection
-// const mongoURI = 'mongodb+srv://joannaabinuman:3LHdBmKGdwrV8qLm@cluster0.9hbk1.mongodb.net/RecipeSharing?retryWrites=true&w=majority';
-// const mongoURI = 'mongodb+srv://maanongulam:FOedTGxM4bO29gwF@maanongulam.4l2du.mongodb.net/?retryWrites=true&w=majority&appName=maanongulam';
-const mongoURI = 'mongodb+srv://maanongulam:FOedTGxM4bO29gwF@maanongulam.4l2du.mongodb.net/maanongulam?retryWrites=true&w=majority';
+// Load environment variables from .env file
+dotenv.config();
 
-mongoose.connect(mongoURI);
+// Use MONGO_URI from .env file
+const mongoURI = process.env.MONGO_URI;
+
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function fetchAndStoreCategories() {
     try {
