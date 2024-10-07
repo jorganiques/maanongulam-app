@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io'; 
 import connectDB from './src/config/db.js';
 import app from './src/middlewares/app.js';
+import commentRoutes from './src/routes/commentRoutes.js'; // Import comment routes
 
 dotenv.config();
 
@@ -39,6 +40,9 @@ connectDB()
         console.log('User disconnected:', socket.id);
       });
     });
+
+    // Use comment routes
+    app.use('/api/comments', commentRoutes);
 
   })
   .catch((error) => {

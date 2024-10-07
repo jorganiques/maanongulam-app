@@ -48,3 +48,16 @@ export const getFavorites = async (req, res) => {
     res.status(500).json({ message: 'Error fetching favorites', error });
   }
 };
+
+// Get the count of favorites for a specific recipe
+export const getFavoritesCount = async (req, res) => {
+  const { recipeId } = req.params;
+
+  try {
+    const count = await Favorite.countDocuments({ recipeId });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error('Failed to fetch favorite count:', error);
+    res.status(500).json({ error: 'Failed to fetch favorite count.' });
+  }
+};

@@ -2,9 +2,15 @@ import Rating from '../models/Rating.js';
 
 // Create a new rating
 export const createRating = async (req, res) => {
-  const { userId, recipeId, rating, isLiked } = req.body; // Removed comment as it's not in the model
+  const { userId, recipeId, rating, isLiked } = req.body;
 
   try {
+    // Check if the user has already rated this recipe
+    const existingRating = await Rating.findOne({ userId, recipeId });
+    if (existingRating) {
+      return res.status(400).json({ message: 'User has already rated this recipe' });
+    }
+
     const newRating = new Rating({ userId, recipeId, rating, isLiked });
     await newRating.save();
     res.status(201).json(newRating);
@@ -30,11 +36,11 @@ export const getRatingsByRecipe = async (req, res) => {
 // Update a rating by ratingId
 export const updateRating = async (req, res) => {
   const { ratingId } = req.params;
-  const { rating, isLiked } = req.body; // Removed comment as it's not in the model
+  const { rating, isLiked } = req.body;
 
   try {
     const updatedRating = await Rating.findOneAndUpdate(
-      { ratingId },
+      { _id: ratingId },
       { rating, isLiked, lastUpdated: Date.now() }, // Update lastUpdated and isLiked
       { new: true }
     );
@@ -56,7 +62,7 @@ export const deleteRating = async (req, res) => {
 
   try {
     const deletedRating = await Rating.findOneAndUpdate(
-      { ratingId },
+      { _id: ratingId },
       { isDeleted: true }, // Set isDeleted to true
       { new: true }
     );
@@ -82,5 +88,22 @@ export const getLikesByRecipe = async (req, res) => {
   } catch (error) {
     console.error('Error fetching likes:', error);
     res.status(500).json({ message: 'Error fetching likes', error });
+  }
+};
+
+// Get the average rating for a specific recipe
+export const getAverageRating = async (req, res) => {
+  const { recipeId } = req.params;
+
+  try {
+    const ratings = await Rating.find({ recipeId, isDeleted: false }); // Ensure we only consider non-deleted ratings
+    if (ratings.length === 0) {
+      return res.status(200).json({ averageRating: 0 }); // Return 0 if no ratings exist
+    }
+    const avgRating = ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length;
+    res.status(200).json({ averageRating: avgRating });
+  } catch (error) {
+    console.error('Failed to fetch average rating:', error);
+    res.status(500).json({ error: 'Failed to fetch average rating.' });
   }
 };

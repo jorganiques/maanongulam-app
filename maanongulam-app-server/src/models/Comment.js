@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 const commentSchema = new mongoose.Schema({
   commentId: { type: String, default: uuidv4, unique: true },  
-  userId: { type: String, required: true },
+  userId: { type: String, required: true }, // User ID of the commenter
+  username: { type: String, required: true }, // Add username field
   recipeId: { type: String, required: true },
   comment: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },

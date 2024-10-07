@@ -2,10 +2,10 @@ import Comment from '../models/Comment.js';
 
 // Create a new comment
 export const createComment = async (req, res) => {
-  const { userId, recipeId, comment } = req.body;
+  const { userId, username, recipeId, comment } = req.body; // Destructure username
 
   try {
-    const newComment = new Comment({ userId, recipeId, comment });
+    const newComment = new Comment({ userId, username, recipeId, comment }); // Include username
     await newComment.save();
     res.status(201).json(newComment);
   } catch (error) {

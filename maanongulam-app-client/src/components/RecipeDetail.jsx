@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
-import { FaThumbsUp, FaComment, FaShareAlt, FaArrowLeft } from 'react-icons/fa'; // Import back arrow icon
+import { useParams, useNavigate } from 'react-router-dom';
+import { FaThumbsUp, FaComment, FaShareAlt, FaArrowLeft, FaStar, FaHeart, FaEllipsisV } from 'react-icons/fa';
 import backgroundImage from '../assets/table3.png';
+import { fetchUserData } from '../api/userApi';
 
 const RecipeDetail = () => {
-  const { recipeId } = useParams(); // Get recipeId from URL params
+  const { recipeId } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [comments, setComments] = useState([]);
   const [ratings, setRatings] = useState([]);
-  const [totalLikes, setTotalLikes] = useState(0);
-  const [likes, setLikes] = useState(0); // Added state for likes
+  const [averageRating, setAverageRating] = useState(0);
+  const [userRating, setUserRating] = useState(0);
+  const [likes, setLikes] = useState(0);
+  const [creator, setCreator] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [hasRated, setHasRated] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [newComment, setNewComment] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const navigate = useNavigate(); // Use useNavigate to go back to the previous page
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,29 +31,157 @@ const RecipeDetail = () => {
         const recipeResponse = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
         setRecipe(recipeResponse.data);
 
+        const creatorResponse = await fetchUserData(recipeResponse.data.userId);
+        setCreator(creatorResponse);
+
+        const loggedInUserId = localStorage.getItem('userId');
+        setUserId(loggedInUserId);
+
         const commentsResponse = await axios.get(`http://localhost:5000/api/comments/recipeId/${recipeId}`);
-        setComments(commentsResponse.data);
+        const enrichedComments = await Promise.all(commentsResponse.data.map(async comment => {
+          const user = await fetchUserData(comment.userId);
+          return { ...comment, user };
+        }));
+        setComments(enrichedComments);
 
         const ratingsResponse = await axios.get(`http://localhost:5000/api/ratings/recipeId/${recipeId}`);
-        setRatings(ratingsResponse.data);
+        const totalRatings = ratingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
+        const average = ratingsResponse.data.length > 0 ? totalRatings / ratingsResponse.data.length : 0;
+        setAverageRating(average);
+
+        const userRatingData = ratingsResponse.data.find(rating => rating.userId === loggedInUserId);
+        if (userRatingData) {
+          setUserRating(userRatingData.rating);
+          setHasRated(true);
+        }
 
         const likesResponse = await axios.get(`http://localhost:5000/api/ratings/likes/${recipeId}`);
-        setTotalLikes(likesResponse.data.likes); // Set total likes from the response
-        setLikes(likesResponse.data.likes); // Set the initial likes
+        setLikes(likesResponse.data.likes);
+
+        const favoritesResponse = await axios.get(`http://localhost:5000/api/favorites/recipeId/${recipeId}`);
+        setFavoriteCount(favoritesResponse.data.favoriteCount);
+        const userFavorite = favoritesResponse.data.favorites.find(fav => fav.userId === loggedInUserId);
+        setIsFavorited(!!userFavorite);
+
       } catch (error) {
         console.error("Error fetching recipe details:", error);
       }
     };
 
     if (recipeId) {
-      fetchData(); // Fetch data only if a recipeId is provided
+      fetchData();
     }
   }, [recipeId]);
 
-  const handleLike = () => {
-    setLikes(likes + 1); // Increment likes when the button is clicked
-    // Optionally, you can send this like to the backend using an API call
-    // axios.post('http://localhost:5000/api/likes', { recipeId, likes: likes + 1 });
+  const handleRating = async (rating) => {
+    try {
+      if (hasRated) {
+        alert("You have already rated this recipe.");
+        return;
+      }
+
+      await axios.post('http://localhost:5000/api/ratings', {
+        userId: userId,
+        recipeId,
+        rating,
+      });
+
+      setUserRating(rating);
+      setHasRated(true);
+
+      const updatedRatingsResponse = await axios.get(`http://localhost:5000/api/ratings/recipeId/${recipeId}`);
+      const totalUpdatedRatings = updatedRatingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
+      const updatedAverage = updatedRatingsResponse.data.length > 0 ? totalUpdatedRatings / updatedRatingsResponse.data.length : 0;
+      setAverageRating(updatedAverage);
+
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+    }
+  };
+
+  const handleFavorite = async () => {
+    try {
+      if (isFavorited) {
+        await axios.delete(`http://localhost:5000/api/favorites`, {
+          data: { userId: userId, recipeId },
+        });
+        setIsFavorited(false);
+        setFavoriteCount(prevCount => prevCount - 1);
+      } else {
+        await axios.post('http://localhost:5000/api/favorites', {
+          userId: userId,
+          recipeId,
+        });
+        setIsFavorited(true);
+        setFavoriteCount(prevCount => prevCount + 1);
+      }
+    } catch (error) {
+      console.error('Error favoriting recipe:', error);
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) {
+      alert("Comment cannot be empty");
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/comments', {
+        userId: userId,
+        recipeId,
+        comment: newComment,
+      });
+
+      const userComment = await fetchUserData(userId);
+      setComments(prevComments => [...prevComments, { ...response.data, user: userComment }]);
+      setNewComment('');
+
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Recipe link copied to clipboard!');
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/comments/${commentId}`);
+      setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
+
+  const openEditModal = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditingCommentText(comment.comment);
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
+  const handleEditComment = async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/comments/${editingCommentId}`, {
+        comment: editingCommentText,
+      });
+
+      setComments(prevComments => prevComments.map(comment => 
+        comment._id === editingCommentId ? { ...comment, comment: editingCommentText } : comment
+      ));
+      closeEditModal();
+    } catch (error) {
+      console.error('Error editing comment:', error);
+    }
   };
 
   if (!recipe) return <p>Loading...</p>;
@@ -57,71 +196,134 @@ const RecipeDetail = () => {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Back Button */}
-      <button 
-        onClick={() => navigate(-1)} // Navigate back to the previous page
-        className="absolute top-4 left-4 flex items-center text-gray-600 hover:text-gray-800 bg-white p-2 rounded-full shadow-md"
-      >
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 flex items-center text-gray-600 hover:text-gray-800 bg-white p-2 rounded-full shadow-md">
         <FaArrowLeft className="mr-2" /> Back
       </button>
-
-      {/* Book Layout */}
+  
+      {/* Two-column layout for recipe details */}
       <div className="w-full max-w-5xl p-4 bg-white rounded-lg shadow-lg flex flex-col md:flex-row space-x-4">
-        
-        {/* Left Page (Title, Image, Creator) */}
         <div className="w-full md:w-1/2 bg-gray-50 p-6 overflow-y-auto h-96 border-r-4">
           <h2 className="text-orange-400 font-recia text-3xl font-bold mb-4">{recipe.title}</h2>
-          <img
-            src={recipe.imageUrl}
-            alt={recipe.title}
-            className="w-full h-48 object-cover mb-4 rounded-md"
-          />
-          <p className="text-black text-lg">Created by: {recipe.creatorName}</p>
+          <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-48 object-cover mb-4 rounded-md" />
+          {creator && (
+            <p className="text-black text-md">Created by: {creator.firstName} {creator.lastName}</p>
+          )}
+  
+          <div className="text-md text-gray-700 mb-2">Favorited by {favoriteCount} people</div>
+  
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <FaStar
+                key={i}
+                className={`cursor-pointer ${i < userRating ? 'text-yellow-400' : 'text-gray-300'}`}
+                onClick={() => handleRating(i + 1)}
+              />
+            ))}
+            <span className="ml-2 text-sm">Rating: {averageRating.toFixed(1)}</span>
+          </div>
         </div>
   
-        {/* Right Page (Ingredients, Instructions) */}
         <div className="w-full md:w-1/2 bg-gray-50 p-6 overflow-y-auto h-96">
           <h3 className="text-black text-2xl font-bold mb-2">Ingredients</h3>
-          <p className="text-black mb-4">{recipe.ingredients.join(', ')}</p>
-          
-          <h3 className="text-black text-2xl font-bold mb-2">Instructions</h3>
-          <p className="text-black">{recipe.instructions}</p>
+          <ul className="list-disc pl-5">
+            {recipe.ingredients.map((ingredient, index) => (
+              <li key={index} className="text-gray-700">{ingredient}</li>
+            ))}
+          </ul>
+  
+          <h3 className="text-black text-2xl font-bold mt-4 mb-2">Instructions</h3>
+          <p className="text-gray-700">{recipe.instructions}</p>
         </div>
       </div>
   
-      {/* Likes, Comments, Share Section */}
-      <div className="w-full max-w-5xl p-4 bg-white mt-6 rounded-lg shadow-lg flex justify-between items-center">
-        {/* Likes Section */}
-        <div className="flex items-center">
-          <button onClick={handleLike} className="flex items-center space-x-1">
-            <FaThumbsUp className="text-blue-500" />
-            <span>{likes}</span>
-          </button>
+      {/* Likes and Comments Section */}
+      <div className="w-full max-w-5xl p-4 bg-white rounded-lg shadow-lg mt-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center">
+            <button onClick={handleFavorite} className={`flex items-center ${isFavorited ? 'text-red-500' : 'text-gray-600'} hover:text-red-500`}>
+              <FaHeart className="mr-1" /> {isFavorited ? 'Unfavorite' : 'Favorite'}
+            </button>
+            <span className="ml-4 flex items-center"><FaThumbsUp className="mr-1" /> {likes}</span>
+            <span className="ml-4 flex items-center"><FaComment className="mr-1" /> {comments.length}</span>
+            <button onClick={handleShare} className="ml-4 flex items-center text-gray-600 hover:text-gray-800"><FaShareAlt className="mr-1" /> Share</button>
+          </div>
         </div>
-        
+  
         {/* Comments Section */}
-        <div className="flex items-center">
-          <FaComment className="text-gray-500" />
-          <span className="ml-2">{comments.length} Comments</span>
+        <div className="max-h-64 overflow-y-scroll">
+        {comments.map(comment => (
+          <div key={comment._id} className="flex items-start border-b py-2">
+            <img src={comment.user.profilePicture || 'default-profile.png'} alt={comment.user.firstName} className="w-8 h-8 rounded-full mr-2" />
+            <div className="flex-1">
+              <div className="flex justify-between">
+                <span className="font-bold">{comment.user.firstName} {comment.user.lastName}</span>
+                {/* Show 3-dot menu only if the comment belongs to the logged-in user */}
+                {comment.userId === userId && (
+                  <div className="relative">
+                    <button onClick={() => setEditingCommentId(comment._id)} className="text-gray-500 hover:text-gray-700">
+                      <FaEllipsisV />
+                    </button>
+
+                    {/* Conditionally render the dropdown when the ellipsis is clicked */}
+                    {editingCommentId === comment._id && (
+                      <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                        <button
+                          onClick={() => {
+                            openEditModal(comment); // Opens the modal
+                            setEditingCommentId(null); // Hide the dropdown after clicking Edit
+                          }}
+                          className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteComment(comment._id)}
+                          className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p>{comment.comment}</p>
+              <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+            </div>
+          </div>
+        ))}
+
+        {/* Edit Comment Modal */}
+        {showEditModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-4 w-1/3">
+              <h3 className="text-xl font-bold mb-2">Edit Comment</h3>
+              <textarea
+                value={editingCommentText}
+                onChange={e => setEditingCommentText(e.target.value)}
+                className="w-full h-24 border rounded-md px-2 py-1"
+              />
+              <div className="flex justify-end mt-4">
+                <button onClick={closeEditModal} className="mr-2 bg-gray-500 text-white rounded-md px-4 py-2">Cancel</button>
+                <button onClick={handleEditComment} className="bg-green-500 text-white rounded-md px-4 py-2">Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         </div>
-        
-        {/* Share Button */}
-        <div>
-          <button className="flex items-center space-x-1">
-            <FaShareAlt className="text-green-500" />
-            <span>Share</span>
-          </button>
-        </div>
-      </div>
-  
-      {/* Comments List */}
-      <div className="w-full max-w-5xl mt-4 bg-white p-4 rounded-lg shadow-lg">
-        <h3 className="text-lg font-bold">Comments</h3>
-        <ul>
-          {comments.map((comment) => (
-            <li key={comment.commentId} className="border-b py-2">{comment.comment}</li>
-          ))}
-        </ul>
+
+        {/* Comment Input */}
+        <form onSubmit={handleCommentSubmit} className="flex mt-4">
+          <input
+            type="text"
+            value={newComment}
+            onChange={e => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            className="flex-1 border rounded-md px-4 py-2"
+          />
+          <button type="submit" className="ml-2 bg-blue-500 text-white rounded-md px-4 py-2">Post</button>
+        </form>
       </div>
     </div>
   );
