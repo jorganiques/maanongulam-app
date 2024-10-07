@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect here
-import { Link, useNavigate, useLocation, useParams } from 'react-router-dom'; 
+import React, { useState } from 'react'; // Removed useEffect as it's no longer needed
+import { Link, useNavigate, useParams } from 'react-router-dom'; 
 import { FaBars } from 'react-icons/fa';
 import RecipeGrid from '../components/RecipeGrid';
 import SearchInput from '../components/SearchInput';
@@ -8,15 +8,12 @@ import CategoriesCarousel from '../components/CategoriesCarousel';
 import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
 import logo from '../assets/maulogo.png';
 import backgroundImage from '../assets/table3.png';
-import Modal from 'react-modal'; // Import Modal
-import AccountSettings from '../pages/AccountSettings'; // Import AccountSettings
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Profile dropdown state
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const navigate = useNavigate(); 
   const { recipeId } = useParams(); // Get the recipeId from the URL
   const userId = localStorage.getItem('userId'); // Get userId from local storage
@@ -42,16 +39,8 @@ const Home = () => {
     navigate('/auth'); 
   };
 
-  useEffect(() => {
-    Modal.setAppElement('#root'); // Add your app element ID here
-  }, []);
-
-  const openModal = () => {
-    setIsModalOpen(true); // Open the modal
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false); // Close the modal
+  const handleAccountSettings = () => {
+    navigate('/account-settings'); // Navigate to AccountSettings page
   };
 
   return (
@@ -102,7 +91,7 @@ const Home = () => {
                   </button>
                 </li>
                 <li className="px-4 py-2 hover:bg-gray-100">
-                  <button onClick={openModal} className="text-black">
+                  <button onClick={handleAccountSettings} className="text-black">
                     Account Settings
                   </button>
                 </li>
@@ -164,21 +153,6 @@ const Home = () => {
           <Chat />
         </div>
       )}
-
-      {/* Modal for Account Settings */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Account Settings Modal"
-        className="modal" // Add your custom styles
-        overlayClassName="overlay" // Add your custom overlay styles
-      >
-        <h2 className="text-xl font-bold">Account Settings</h2>
-        <AccountSettings userId={userId} onClose={closeModal} /> {/* Pass userId to AccountSettings */}
-        <button onClick={closeModal} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-          Close
-        </button>
-      </Modal>
     </div>
   );
 };
