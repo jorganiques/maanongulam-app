@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';  
+import React, { useState, useEffect } from 'react';  
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -11,6 +11,8 @@ import chefhat from '../assets/chefhat.png';
 const AuthenticationScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
+  const [formError, setFormError] = useState('');  // New state for error handling
+  const [isBlurred, setIsBlurred] = useState(false); // State to trigger the blur effect
 
   // Initial form values
   const initialValues = {
@@ -36,16 +38,24 @@ const AuthenticationScreen = () => {
   const handleSubmit = async (values) => {
     try {
       const data = await authenticateUser(values, isLogin);
+  
+      // If authentication is successful
       console.log(data);
       localStorage.setItem('userId', data.userId);
       navigate('/home');
     } catch (error) {
-      console.error('Error:', error);
-      // Optionally handle error feedback here
+      if (!initialValues.password || !initialValues.username) {
+        setFormError("Username or Password is Incorrect . Please try again.");
+      } else {
+        console.error('Error:', error);
+        setFormError("Something Went Wrong. Please try again later.");
+      }
     }
   };
+  
 
   // Component for field with error message
+  // eslint-disable-next-line react/prop-types
   const FieldWithError = ({ name, placeholder, type = 'text' }) => (
     <div>
       <Field
@@ -59,6 +69,7 @@ const AuthenticationScreen = () => {
   );
 
   // Toggle link for switching between login and register
+  // eslint-disable-next-line react/prop-types
   const ToggleLoginLink = ({ isLogin, setIsLogin }) => (
     <p className="mt-4">
       {isLogin ? 'Don’t have an account? ' : 'Already have an account? '}
@@ -72,9 +83,22 @@ const AuthenticationScreen = () => {
     </p>
   );
 
+  useEffect(() => {
+    // Trigger the blur-out animation after 2.5 seconds
+    const timer1 = setTimeout(() => {
+      setIsBlurred(true);
+    },);
+
+    // Cleanup timers on unmount
+    return () => {
+      clearTimeout(timer1);
+    };
+  },);
+
   return (
     <section 
-    className="flex flex-col min-h-screen items"
+    className= {`flex flex-col min-h-screen transition-all duration-500 
+        ${isBlurred ? '' : 'opacity-0 blur-sm'}`}
     style={{
       backgroundImage: `url(${backgroundImageAuth})`,
       backgroundSize: 'cover', 
@@ -105,7 +129,7 @@ const AuthenticationScreen = () => {
       >
         {() => (
           <Form className="flex flex-col items-center mt-20 bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto w-full space-y-4 relative z-10 border-t-4 border-orange-400 ">
-                  <h1 className="text-4xl font-semibold text-red-900 mb-6 font-ruda">
+                  <h1 className="text-4xl font-semibold text-red-900 mb-6 font-marmelad">
         {isLogin ? 'Login' : 'Register'}
       </h1>
             {/* Conditional rendering of registration fields */}
@@ -119,6 +143,10 @@ const AuthenticationScreen = () => {
             )}
               <FieldWithError name="username" placeholder="Username" />
               <FieldWithError type="password" name="password" placeholder="Password" />
+
+              {/* Show error message if there's an error */}
+              {formError && <div className="text-red-500 mt-2">{formError}</div>}
+              
             <button type="submit" className="w-72 p-2 bg-orange-400 hover:bg-orange-600 text-white text-lg px-6 py-3 rounded-lg shadow-md transition-all">
               {isLogin ? 'Login' : 'Register'}
             </button>
@@ -128,10 +156,10 @@ const AuthenticationScreen = () => {
       </Formik>
 
       <div className="flex flex-col justify-center items-end text-right p-8 fixed right-20 top-2/3 z-20">
-        <h1 className="text-3xl font-bold text-orange-600 mb-4 font-ruda">
+        <h1 className="text-3xl font-bold text-orange-600 mb-4 font-marmelad">
           Discover, Share, and Cook <br/> with Confidence!
         </h1>
-        <p className="text-xl text-red-900 max-w-xs font-ruda">
+        <p className="text-xl text-red-900 max-w-xs font-marmelad">
           Your trusted culinary hub for reliable, time-saving recipes, crafted by real people, loved by the community.
         </p>
       </div>
