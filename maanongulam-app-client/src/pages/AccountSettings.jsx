@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { updateUser, deleteUser, deactivateUser, fetchUserData } from '../api/userApi'; // Importing API functions
+import { useNavigate } from 'react-router-dom'; 
+import { updateUser, deleteUser, deactivateUser, fetchUserData } from '../api/userApi';
+import backgroundImage from '../assets/table2.png'; 
 
-const AccountSettings = ({ userId, onClose }) => {
+const AccountSettings = ({ userId }) => {
   const userIdentifier = userId || localStorage.getItem('userId');
+  const navigate = useNavigate(); 
 
   const formik = useFormik({
     initialValues: {
-      username: '', // Set this to an appropriate default if necessary
+      username: '', 
       email: '',
       firstName: '',
       lastName: '',
@@ -24,6 +27,7 @@ const AccountSettings = ({ userId, onClose }) => {
       try {
         const updatedUser = await updateUser(userIdentifier, values);
         console.log('User updated successfully', updatedUser);
+        alert('Your details have been updated successfully!'); // Notify the user of success
       } catch (error) {
         console.error('Error updating user:', error);
         alert(`Update failed: ${error.message}`); // Inform the user of the failure
@@ -70,17 +74,30 @@ const AccountSettings = ({ userId, onClose }) => {
     }
   };
 
+  const handleExit = () => {
+    navigate('/home');
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
-        <h3 className="text-lg font-bold mb-4">Account Information</h3>
+    <div
+      className="min-h-screen flex flex-col items-center"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        paddingBottom: '50px',
+      }}
+    >
+      <div className="bg-white bg-opacity-95 p-6 rounded-3xl shadow-2xl mt-16 w-10/12 md:w-1/2 lg:w-1/3 border-t-4 border-orange-400 relative">
+        <h3 className="text-3xl font-extrabold text-gray-900 mb-6">Account Information</h3>
         <form onSubmit={formik.handleSubmit}>
           <input
             type="text"
             name="username"
             value={formik.values.username}
             readOnly
-            className="border p-2 rounded w-full mb-2 bg-gray-200" // Added gray background for readonly
+            className="border p-2 rounded w-full mb-2 bg-gray-200"
           />
           <input
             type="email"
@@ -136,7 +153,7 @@ const AccountSettings = ({ userId, onClose }) => {
             <button type="button" onClick={handleDeleteAccount} className="bg-red-500 text-white px-4 py-2 rounded">Delete Account</button>
           </div>
         </form>
-        <button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded w-full">Exit</button>
+        <button type="button" onClick={handleExit} className="bg-gray-500 text-white px-4 py-2 rounded w-full">Exit</button>
       </div>
     </div>
   );
