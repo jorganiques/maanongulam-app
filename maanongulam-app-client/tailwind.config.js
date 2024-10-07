@@ -9,6 +9,8 @@ export default {
       fontFamily: {
         recia: ['Recia', 'sans-serif'],
         zina: ['Zina', 'serif'],
+        marmelad: ['Marmelad', 'sans-serif'],
+        afacad: ['Afacad Flux', 'sans-serif']
       },
     },
   },
