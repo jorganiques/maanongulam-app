@@ -67,9 +67,7 @@ const Chat = ({ username }) => {
           chat.map((msg, index) => (
             <div key={index} className={`p-2 my-1 rounded-md ${msg.user === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-200'}`}>
               <strong>{msg.user}:</strong> {msg.text}
-              <div>
-                <span className="text-black-500 text-xs ml-2">{new Date(msg.timestamp).toLocaleTimeString()}</span> {/* Timestamp */}
-              </div>
+              <span className="text-black-500 text-xs ml-2">{new Date(msg.timestamp).toLocaleTimeString()}</span> {/* Timestamp */}
             </div>
           ))
         ) : (
@@ -80,7 +78,7 @@ const Chat = ({ username }) => {
 
       {newMessageAlert && <div className="bg-yellow-200 p-2 rounded-md mb-2">New message received!</div>} {/* New message alert */}
 
-      <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2">
         <input
           type="text"
           value={message}
@@ -91,10 +89,10 @@ const Chat = ({ username }) => {
           placeholder="Type your message..."
           className="flex-1 p-2 border rounded-md focus:outline-none"
         />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+        <button onClick={handleSendMessage} className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
           Send
         </button>
-      </form>
+      </div>
     </div>
   );
 };
