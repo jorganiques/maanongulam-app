@@ -45,7 +45,8 @@ const Chat = ({ username }) => {
     }
   }, [chat]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e) => {
+    e.preventDefault(); // Prevent the default form submission
     if (message.trim() && socket) {
       const msg = { user: username, text: message, timestamp: new Date() };
       socket.emit('chatMessage', msg);
@@ -67,7 +68,7 @@ const Chat = ({ username }) => {
           chat.map((msg, index) => (
             <div key={index} className={`p-2 my-1 rounded-md ${msg.user === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-200'}`}>
               <strong>{msg.user}:</strong> {msg.text}
-              <div>
+              <div>  
                 <span className="text-black-500 text-xs ml-2">{new Date(msg.timestamp).toLocaleTimeString()}</span> {/* Timestamp */}
               </div>
             </div>
@@ -87,6 +88,12 @@ const Chat = ({ username }) => {
           onChange={(e) => {
             setMessage(e.target.value);
             handleTyping(); // Emit typing event
+          }}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault(); // Prevent default form submission
+              handleSendMessage(e); // Call the send message function
+            }
           }}
           placeholder="Type your message..."
           className="flex-1 p-2 border rounded-md focus:outline-none"
