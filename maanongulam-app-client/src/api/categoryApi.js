@@ -2,7 +2,7 @@
 
 export const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/categories');
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/categories`);
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }

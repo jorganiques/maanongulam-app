@@ -8,7 +8,7 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/categories`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);

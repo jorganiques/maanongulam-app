@@ -3,7 +3,7 @@
 // Create a new recipe
 export const createRecipe = async (formData) => {
   try {
-    const response = await fetch('http://localhost:5000/api/recipes', {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes`, {
       method: 'POST',
       body: formData,
     });
@@ -20,7 +20,7 @@ export const createRecipe = async (formData) => {
 // Search for recipes
 export const searchRecipes = async (searchTerm) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recipes/search?query=${searchTerm}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/search?query=${searchTerm}`);
     if (!response.ok) {
       throw new Error('Failed to fetch recipes');
     }
@@ -34,7 +34,7 @@ export const searchRecipes = async (searchTerm) => {
 // Fetch recipes by category ID
 export const fetchRecipesByCategory = async (categoryId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recipes/category/${categoryId}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/category/${categoryId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch recipes');
     }
@@ -48,7 +48,7 @@ export const fetchRecipesByCategory = async (categoryId) => {
 // Fetch recipe details
 export const fetchRecipeDetails = async (recipeId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch recipe details');
     }
@@ -62,7 +62,7 @@ export const fetchRecipeDetails = async (recipeId) => {
 // Update a recipe
 export const updateRecipe = async (recipeId, updatedData) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export const updateRecipe = async (recipeId, updatedData) => {
 // Delete a recipe
 export const deleteRecipe = async (recipeId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`, {
       method: 'DELETE',
     });
     if (!response.ok) {

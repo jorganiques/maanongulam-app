@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import RecipeGrid from '../components/RecipeGrid';
 import SearchInput from '../components/SearchInput';
+import Chat from '../components/Chat';
 import CategoriesCarousel from '../components/CategoriesCarousel';
 import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
 import logo from '../assets/maulogo.png';
@@ -10,6 +11,7 @@ import backgroundImage from '../assets/table3.png';
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Profile dropdown state
   const navigate = useNavigate(); 
@@ -17,6 +19,7 @@ const Home = () => {
   const userId = localStorage.getItem('userId'); // Get userId from local storage
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleChat = () => setIsChatOpen(!isChatOpen);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown
 
   const handleCategorySelect = (categoryId) => {
@@ -135,6 +138,21 @@ const Home = () => {
       style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)'}}>
         <p className="text-black">&copy; 2024 Kurimau. All rights reserved.</p>
       </footer>
+  
+      {/* Chat Popup Button */}
+      <button
+        onClick={toggleChat}
+        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 fixed bottom-5 right-5"
+      >
+        Chat
+      </button>
+  
+      {/* Chat Popup */}
+      {isChatOpen && (
+        <div className="fixed bottom-20 right-5 w-80 bg-white shadow-lg rounded-lg p-4">
+          <Chat />
+        </div>
+      )}
     </div>
   );
 };

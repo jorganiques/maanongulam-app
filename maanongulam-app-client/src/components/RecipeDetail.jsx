@@ -28,7 +28,7 @@ const RecipeDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const recipeResponse = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
+        const recipeResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`);
         setRecipe(recipeResponse.data);
 
         const creatorResponse = await fetchUserData(recipeResponse.data.userId);
@@ -37,14 +37,14 @@ const RecipeDetail = () => {
         const loggedInUserId = localStorage.getItem('userId');
         setUserId(loggedInUserId);
 
-        const commentsResponse = await axios.get(`http://localhost:5000/api/comments/recipeId/${recipeId}`);
+        const commentsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/comments/recipeId/${recipeId}`);
         const enrichedComments = await Promise.all(commentsResponse.data.map(async comment => {
           const user = await fetchUserData(comment.userId);
           return { ...comment, user };
         }));
         setComments(enrichedComments);
 
-        const ratingsResponse = await axios.get(`http://localhost:5000/api/ratings/recipeId/${recipeId}`);
+        const ratingsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/recipeId/${recipeId}`);
         const totalRatings = ratingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
         const average = ratingsResponse.data.length > 0 ? totalRatings / ratingsResponse.data.length : 0;
         setAverageRating(average);
@@ -55,10 +55,10 @@ const RecipeDetail = () => {
           setHasRated(true);
         }
 
-        const likesResponse = await axios.get(`http://localhost:5000/api/ratings/likes/${recipeId}`);
+        const likesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/likes/${recipeId}`);
         setLikes(likesResponse.data.likes);
 
-        const favoritesResponse = await axios.get(`http://localhost:5000/api/favorites/recipeId/${recipeId}`);
+        const favoritesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/favorites/recipeId/${recipeId}`);
         setFavoriteCount(favoritesResponse.data.favoriteCount);
         const userFavorite = favoritesResponse.data.favorites.find(fav => fav.userId === loggedInUserId);
         setIsFavorited(!!userFavorite);
@@ -80,7 +80,7 @@ const RecipeDetail = () => {
         return;
       }
 
-      await axios.post('http://localhost:5000/api/ratings', {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/ratings`, {
         userId: userId,
         recipeId,
         rating,
@@ -89,7 +89,7 @@ const RecipeDetail = () => {
       setUserRating(rating);
       setHasRated(true);
 
-      const updatedRatingsResponse = await axios.get(`http://localhost:5000/api/ratings/recipeId/${recipeId}`);
+      const updatedRatingsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/recipeId/${recipeId}`);
       const totalUpdatedRatings = updatedRatingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
       const updatedAverage = updatedRatingsResponse.data.length > 0 ? totalUpdatedRatings / updatedRatingsResponse.data.length : 0;
       setAverageRating(updatedAverage);
@@ -102,13 +102,13 @@ const RecipeDetail = () => {
   const handleFavorite = async () => {
     try {
       if (isFavorited) {
-        await axios.delete(`http://localhost:5000/api/favorites`, {
+        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
           data: { userId: userId, recipeId },
         });
         setIsFavorited(false);
         setFavoriteCount(prevCount => prevCount - 1);
       } else {
-        await axios.post('http://localhost:5000/api/favorites', {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
           userId: userId,
           recipeId,
         });
@@ -128,7 +128,7 @@ const RecipeDetail = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/comments', {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/comments`, {
         userId: userId,
         recipeId,
         comment: newComment,
@@ -150,7 +150,7 @@ const RecipeDetail = () => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${commentId}`);
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${commentId}`);
       setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
     } catch (error) {
       console.error('Error deleting comment:', error);
@@ -171,7 +171,7 @@ const RecipeDetail = () => {
 
   const handleEditComment = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/comments/${editingCommentId}`, {
+      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${editingCommentId}`, {
         comment: editingCommentText,
       });
 

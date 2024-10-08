@@ -4,7 +4,7 @@ export const fetchUserData = async (userId) => {
   try {
     console.log('Fetching user ID:', userId); // Debug line to check userId
 
-    const response = await fetch(`http://localhost:5000/api/users/user/${userId}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/user/${userId}`);
     if (!response.ok) {
       throw new Error('Error fetching user data');
     }
@@ -21,7 +21,7 @@ export const updateUser = async (userId, userData) => {
     // Log the userData to check what's being sent
     console.log('Updating user with ID:', userId, 'Data:', userData);
     
-    const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export const updateUser = async (userId, userData) => {
 
 export const deleteUser = async (userId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${userId}`, {
       method: 'DELETE',
     });
 
@@ -59,7 +59,7 @@ export const deleteUser = async (userId) => {
 
 export const deactivateUser = async (userId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/users/deactivate/${userId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/deactivate/${userId}`, {
       method: 'PUT',
     });
 
