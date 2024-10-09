@@ -21,7 +21,7 @@ const AccountSettings = ({ userId }) => {
       email: Yup.string().email('Invalid email address').required('Required'),
       firstName: Yup.string().required('Required'),
       lastName: Yup.string().required('Required'),
-      contactNumber: Yup.string().required('Required'),
+      contactNumber: Yup.string(),
     }),
     onSubmit: async (values) => {
       try {
@@ -80,7 +80,7 @@ const AccountSettings = ({ userId }) => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center"
+      className="min-h-screen flex flex-col items-center justify-center"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -89,15 +89,15 @@ const AccountSettings = ({ userId }) => {
         paddingBottom: '50px',
       }}
     >
-      <div className="bg-white bg-opacity-95 p-6 rounded-3xl shadow-2xl mt-16 w-10/12 md:w-1/2 lg:w-1/3 border-t-4 border-orange-400 relative">
-        <h3 className="text-3xl font-extrabold text-gray-900 mb-6">Account Information</h3>
-        <form onSubmit={formik.handleSubmit}>
+      <div className="bg-white bg-opacity-90 p-8 rounded-3xl shadow-lg mt-16 w-11/12 md:w-2/3 lg:w-1/3 border-t-4 border-orange-500 relative">
+        <h3 className="text-4xl font-bold text-gray-800 mb-8 text-center">Account Information</h3>
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
           <input
             type="text"
             name="username"
             value={formik.values.username}
             readOnly
-            className="border p-2 rounded w-full mb-2 bg-gray-200"
+            className="border p-3 rounded w-full bg-gray-100 text-gray-600"
           />
           <input
             type="email"
@@ -106,10 +106,10 @@ const AccountSettings = ({ userId }) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Email"
-            className={`border p-2 rounded w-full mb-2 ${formik.touched.email && formik.errors.email ? 'border-red-500' : ''}`}
+            className={`border p-3 rounded w-full ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-300'}`}
           />
           {formik.touched.email && formik.errors.email && (
-            <div className="text-red-500 mb-2">{formik.errors.email}</div>
+            <div className="text-red-500 text-sm">{formik.errors.email}</div>
           )}
           <input
             type="text"
@@ -118,10 +118,10 @@ const AccountSettings = ({ userId }) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="First Name"
-            className={`border p-2 rounded w-full mb-2 ${formik.touched.firstName && formik.errors.firstName ? 'border-red-500' : ''}`}
+            className={`border p-3 rounded w-full ${formik.touched.firstName && formik.errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
           />
           {formik.touched.firstName && formik.errors.firstName && (
-            <div className="text-red-500 mb-2">{formik.errors.firstName}</div>
+            <div className="text-red-500 text-sm">{formik.errors.firstName}</div>
           )}
           <input
             type="text"
@@ -130,10 +130,10 @@ const AccountSettings = ({ userId }) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Last Name"
-            className={`border p-2 rounded w-full mb-2 ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : ''}`}
+            className={`border p-3 rounded w-full ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
           />
           {formik.touched.lastName && formik.errors.lastName && (
-            <div className="text-red-500 mb-2">{formik.errors.lastName}</div>
+            <div className="text-red-500 text-sm">{formik.errors.lastName}</div>
           )}
           <input
             type="text"
@@ -142,18 +142,18 @@ const AccountSettings = ({ userId }) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Contact Number"
-            className={`border p-2 rounded w-full mb-4 ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' : ''}`}
+            className={`border p-3 rounded w-full ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' : 'border-gray-300'}`}
           />
           {formik.touched.contactNumber && formik.errors.contactNumber && (
-            <div className="text-red-500 mb-2">{formik.errors.contactNumber}</div>
+            <div className="text-red-500 text-sm">{formik.errors.contactNumber}</div>
           )}
-          <div className="flex justify-between mb-4">
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
-            <button type="button" onClick={handleDeactivateAccount} className="bg-yellow-500 text-white px-4 py-2 rounded">Deactivate Account</button>
-            <button type="button" onClick={handleDeleteAccount} className="bg-red-500 text-white px-4 py-2 rounded">Delete Account</button>
+          <div className="flex justify-between mt-6">
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Update</button>
+            <button type="button" onClick={handleDeactivateAccount} className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded shadow">Deactivate</button>
+            <button type="button" onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded shadow">Delete</button>
           </div>
         </form>
-        <button type="button" onClick={handleExit} className="bg-gray-500 text-white px-4 py-2 rounded w-full">Exit</button>
+        <button type="button" onClick={handleExit} className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded shadow w-full mt-4">Exit</button>
       </div>
     </div>
   );
