@@ -66,7 +66,7 @@ const Chat = ({ username }) => {
       <div ref={chatBoxRef} className="chat-box h-64 overflow-y-auto border p-2 mb-2 bg-gray-100 rounded-md">
         {chat.length > 0 ? (
           chat.map((msg, index) => (
-            <div key={index} className={`p-2 my-1 rounded-md ${msg.user === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-200'}`}>
+            <div key={index} className={`p-2 my-1 rounded-md ${msg.user === username ? 'bg-orange-400 text-white self-end' : 'bg-gray-200'}`}>
               <strong>{msg.user}:</strong> {msg.text}
               <div>  
                 <span className="text-black-500 text-xs ml-2">{new Date(msg.timestamp).toLocaleTimeString()}</span> {/* Timestamp */}
@@ -78,8 +78,6 @@ const Chat = ({ username }) => {
         )}
         {typing && <div className="text-gray-500 italic">{typing}</div>}
       </div>
-
-      {newMessageAlert && <div className="bg-yellow-200 p-2 rounded-md mb-2">New message received!</div>} {/* New message alert */}
 
       <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
         <input
@@ -98,10 +96,11 @@ const Chat = ({ username }) => {
           placeholder="Type your message..."
           className="flex-1 p-2 border rounded-md focus:outline-none"
         />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+        <button type="submit" className="bg-orange-400 text-white p-2 rounded-md hover:bg-orange-600">
           Send
         </button>
       </form>
+      {newMessageAlert && <div className="bg-yellow-200 p-2 rounded-md mb-2">New message received!</div>} {/* New message alert */}
     </div>
   );
 };

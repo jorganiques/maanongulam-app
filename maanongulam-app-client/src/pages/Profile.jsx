@@ -5,7 +5,7 @@ import { fetchUserData } from '../api/userApi';
 
 const MyProfile = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+  const userId = localStorage.getItem('userId');
 
   const [user, setUser] = useState({
     name: '',
@@ -28,7 +28,7 @@ const MyProfile = () => {
           const data = await fetchUserData(userId);
           setUser({
             ...user,
-            name: `${data.firstName} ${data.lastName}`, // Update name with first and last name
+            name: `${data.firstName} ${data.lastName}`,
             bio: data.bio || user.bio,
             location: data.location || user.location,
             profilePicture: data.profilePicture || user.profilePicture,
@@ -52,7 +52,7 @@ const MyProfile = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center"
+      className="min-h-screen flex flex-col items-center justify-center"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -61,15 +61,13 @@ const MyProfile = () => {
         paddingBottom: '50px',
       }}
     >
-      <div className="bg-white bg-opacity-95 p-12 rounded-3xl shadow-2xl mt-16 w-10/15 md:w-3/4 lg:w-2/3 border-t-4 border-orange-400 relative">
-        {/* Back to Home Button */}
+      <div className="bg-white bg-opacity-90 p-10 rounded-3xl shadow-xl mt-16 w-11/12 md:w-3/4 lg:w-2/3 border-t-4 border-orange-500 relative">
         <button
           onClick={() => navigate('/home')}
-          className="bg-orange-400 font-recia text-white px-4 py-2 rounded hover:bg-red-900 absolute top-4 right-4"
+          className="bg-orange-500 font-recia text-white px-4 py-2 rounded hover:bg-orange-600 absolute top-4 right-4"
         >
           Back to Home
         </button>
-        {/* Profile Header */}
         <div className="flex items-center space-x-10">
           <img
             src={user.profilePicture}
@@ -89,7 +87,6 @@ const MyProfile = () => {
           </div>
         </div>
 
-        {/* Recipes Section */}
         <div className="mt-14">
           <h2 className="text-4xl font-bold text-gray-800 mb-10">My Recipes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -102,7 +99,6 @@ const MyProfile = () => {
           </div>
         </div>
 
-        {/* Modal for Editing Bio */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -130,7 +126,6 @@ const MyProfile = () => {
           </div>
         )}
 
-        {/* Animation styles */}
         <style>
           {`
             .food-animation {

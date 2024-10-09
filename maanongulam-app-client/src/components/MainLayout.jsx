@@ -32,7 +32,7 @@ const MainLayout = () => {
 
       {isChatOpen && (
         <div className="fixed bottom-0 right-5 w-80 bg-white shadow-lg rounded-lg">
-          <div className="flex justify-between items-center bg-blue-500 text-white p-2 rounded-t-lg">
+          <div className="flex justify-between items-center bg-orange-400 text-white p-2 rounded-t-lg">
             <span>Chat with Ka-MAU</span>
             <div className="flex items-center space-x-4">
               <button 
