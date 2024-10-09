@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 export const fetchFavoritesCount = async (recipeId) => {
 const response = await axios.get(`${API_URL}/api/favorites/count/${recipeId}`);
 
-return response.data.favoriteCount;
+return response.data.count;
 };
 
 export const checkIfFavorited = (favorites, userId) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaThumbsUp, FaComment, FaShareAlt, FaArrowLeft, FaStar, FaHeart, FaEllipsisV } from 'react-icons/fa';
-import backgroundImage from '../assets/table3.png';
+import backgroundImage from '../assets/table2.png';
 import { fetchUserData } from '../api/userApi';
 import { fetchCommentsByRecipeId, postComment, deleteComment, updateComment } from '../api/commentApi';
 import { fetchFavoritesCount, checkIfFavorited, addFavorite, removeFavorite} from '../api/favoriteApi';
