@@ -89,21 +89,30 @@ const RecipeDetail = () => {
         alert("You have already rated this recipe.");
         return;
       }
-
+  
+      // Ask for confirmation before proceeding with the rating
+      const isConfirmed = window.confirm(`Are you sure you want to rate this recipe ${rating} stars? You won't be able to change it later.`);
+  
+      if (!isConfirmed) {
+        return; // Exit if the user cancels
+      }
+  
+      // If confirmed, proceed with submitting the rating
       await submitRating(userId, recipeId, rating);
       setUserRating(rating);
       setHasRated(true);
       
+      // Update the average rating after the user submits the rating
       const updatedRatingsResponse = await fetchRatingsByRecipeId(recipeId);
       const totalUpdatedRatings = updatedRatingsResponse.reduce((acc, rating) => acc + rating.rating, 0);
       const updatedAverage = updatedRatingsResponse.length > 0 ? totalUpdatedRatings / updatedRatingsResponse.length : 0;
       setAverageRating(updatedAverage);
-
+  
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
   };
-
+  
   const handleFavorite = async () => {
     try {
       if (isFavorited) {
