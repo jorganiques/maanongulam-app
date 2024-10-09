@@ -33,12 +33,12 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
 
   return (
     <div className="flex items-center justify-center my-4">
-      <button onClick={handlePrev} className="text-2xl">&lt;&lt;</button>
+      <button onClick={handlePrev} className="text-red-900 text-2xl ">&lt;&lt;</button>
       <div className="flex overflow-hidden w-full justify-around">
         {categories.slice(currentIndex, currentIndex + categoriesToShow).map((category) => (
           <div 
             key={category.categoryId} 
-            className="text-red-900 font-recia bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition-transform duration-300 cursor-pointer"
+            className="text-red-900 font-recia bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition duration-300 cursor-pointer"
             onClick={() => handleCategoryClick(category.categoryId)} // Add onClick here
           >
             <h3 className="text-2xl font-semibold">{category.categoryName}</h3>
@@ -48,7 +48,7 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
           </div>
         ))}
       </div>
-      <button onClick={handleNext} className="text-2xl">&gt;&gt;</button>
+      <button onClick={handleNext} className="text-red-900 text-2xl">&gt;&gt;</button>
     </div>
   );
 };

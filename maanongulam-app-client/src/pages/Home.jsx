@@ -76,7 +76,7 @@ const Home = () => {
         <div className="flex items-center space-x-4">
           <button 
             onClick={handleCreateRecipeClick} 
-            className="bg-orange-400 font-recia text-white px-4 py-2 rounded hover:bg-red-900">
+            className="bg-orange-400 text-red-900 font-recia px-4 py-2 rounded hover:bg-red-900 hover:text-orange-400 transition duration-300">
             Create Recipe
           </button>
 
@@ -90,17 +90,17 @@ const Home = () => {
             </button>
             {isDropdownOpen && (
               <ul className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48">
-                <li className="px-4 py-2 hover:bg-gray-100">
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
                   <button onClick={() => navigate('/profile')} className="text-black">
                     My Profile
                   </button>
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100">
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
                   <button onClick={handleAccountSettings} className="text-black">
                     Account Settings
                   </button>
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100">
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
                   <button onClick={handleLogout} className="text-red-500">
                     Logout
                   </button>

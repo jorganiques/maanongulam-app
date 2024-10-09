@@ -188,9 +188,10 @@ const RecipeDetail = () => {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 flex items-center text-gray-600 hover:text-gray-800 bg-white p-2 rounded-full shadow-md">
+      <button onClick={() => navigate(-1)} className="bg-orange-400 text-red-900 absolute top-4 left-4 flex items-center hover:bg-red-900 hover:text-orange-400 p-2 rounded-full shadow-md transition duration-300">
         <FaArrowLeft className="mr-2" /> Back
       </button>
+
   
       {/* Two-column layout for recipe details */}
       <div className="w-full max-w-5xl p-4 bg-white rounded-lg shadow-lg flex flex-col md:flex-row space-x-4">
@@ -198,10 +199,8 @@ const RecipeDetail = () => {
           <h2 className="text-orange-400 font-recia text-3xl font-bold mb-4">{recipe.title}</h2>
           <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-48 object-cover mb-4 rounded-md" />
           {creator && (
-            <p className="text-black text-md">Created by: {creator.firstName} {creator.lastName}</p>
+            <p className="text-black text-md">Recipe by: {creator.firstName} {creator.lastName} </p>
           )}
-  
-          <div className="text-md text-gray-700 mb-2">Favorited by {favoriteCount} people</div>
   
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
@@ -232,12 +231,12 @@ const RecipeDetail = () => {
       <div className="w-full max-w-5xl p-4 bg-white rounded-lg shadow-lg mt-4">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <button onClick={handleFavorite} className={`flex items-center ${isFavorited ? 'text-red-500' : 'text-gray-600'} hover:text-red-500`}>
-              <FaHeart className="mr-1" /> {isFavorited ? 'Unfavorite' : 'Favorite'}
+            <button onClick={handleFavorite} className={`flex items-center ${isFavorited ? 'text-red-500' : 'text-gray-600'} hover:text-red-500 transition duration-300`}>
+              <FaHeart className="mr-1" /> {favoriteCount} {isFavorited ? 'Unfavorite' : 'Favorite'}
             </button>
             <span className="ml-4 flex items-center"><FaThumbsUp className="mr-1" /> {likes}</span>
             <span className="ml-4 flex items-center"><FaComment className="mr-1" /> {comments.length}</span>
-            <button onClick={handleShare} className="ml-4 flex items-center text-gray-600 hover:text-gray-800"><FaShareAlt className="mr-1" /> Share</button>
+            <button onClick={handleShare} className="ml-4 flex items-center text-gray-600 hover:text-gray-800 transition duration-300"><FaShareAlt className="mr-1" /> Share</button>
           </div>
         </div>
   
@@ -252,7 +251,7 @@ const RecipeDetail = () => {
                 {/* Show 3-dot menu only if the comment belongs to the logged-in user */}
                 {comment.userId === userId && (
                   <div className="relative">
-                    <button onClick={() => setEditingCommentId(comment._id)} className="text-gray-500 hover:text-gray-700">
+                    <button onClick={() => setEditingCommentId(comment._id)} className="text-gray-500 hover:text-gray-700 transition duration-300">
                       <FaEllipsisV />
                     </button>
 
@@ -264,13 +263,13 @@ const RecipeDetail = () => {
                             openEditModal(comment); // Opens the modal
                             setEditingCommentId(null); // Hide the dropdown after clicking Edit
                           }}
-                          className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition duration-300"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteComment(comment._id)}
-                          className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-100"
+                          className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-100 transition duration-300"
                         >
                           Delete
                         </button>
@@ -314,7 +313,7 @@ const RecipeDetail = () => {
             placeholder="Add a comment..."
             className="flex-1 border rounded-md px-4 py-2"
           />
-          <button type="submit" className="ml-2 bg-blue-500 text-white rounded-md px-4 py-2">Post</button>
+          <button type="submit" className="ml-2 bg-orange-400 text-red-900 hover:bg-red-900 hover:text-orange-400 rounded-full shadow-md transition duration-300 rounded-md px-4 py-2">Post</button>
         </form>
       </div>
     </div>

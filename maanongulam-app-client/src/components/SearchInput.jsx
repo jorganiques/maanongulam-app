@@ -38,7 +38,7 @@ const SearchInput = () => {
         placeholder="Search for recipes here..."
         className="p-4 w-full border rounded-l"
       />
-      <button type="submit" className="p-4 bg-orange-400 text-white rounded-r hover:bg-red-900">
+      <button type="submit" className="p-4 bg-orange-400 text-white rounded-r hover:bg-red-900 transition duration-300">
         <FaSearch />
       </button>
     </form>
