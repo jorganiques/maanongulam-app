@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaThumbsUp, FaComment, FaShareAlt, FaArrowLeft, FaStar, FaHeart, FaEllipsisV } from 'react-icons/fa';
 import backgroundImage from '../assets/table3.png';
 import { fetchUserData } from '../api/userApi';
+import { fetchCommentsByRecipeId, postComment, deleteComment, updateComment } from '../api/commentApi';
+import { fetchFavoritesCount, checkIfFavorited, addFavorite, removeFavorite} from '../api/favoriteApi';
+import { fetchRatingsByRecipeId, submitRating, fetchLikesCount } from '../api/ratingApi';
 
 const RecipeDetail = () => {
   const { recipeId } = useParams();
@@ -22,45 +24,53 @@ const RecipeDetail = () => {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
-
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const recipeResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`);
-        setRecipe(recipeResponse.data);
+        // Fetch recipe details
+        const recipeResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}`);
+        const recipeData = await recipeResponse.json();
+        setRecipe(recipeData);
 
-        const creatorResponse = await fetchUserData(recipeResponse.data.userId);
+        // Fetch recipe creator
+        const creatorResponse = await fetchUserData(recipeData.userId);
         setCreator(creatorResponse);
 
+        // Get the logged in user ID
         const loggedInUserId = localStorage.getItem('userId');
         setUserId(loggedInUserId);
 
-        const commentsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/comments/recipeId/${recipeId}`);
-        const enrichedComments = await Promise.all(commentsResponse.data.map(async comment => {
+        // Fetch comments
+        const commentsData = await fetchCommentsByRecipeId(recipeId);
+        const enrichedComments = await Promise.all(commentsData.map(async comment => {
           const user = await fetchUserData(comment.userId);
           return { ...comment, user };
         }));
         setComments(enrichedComments);
 
-        const ratingsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/recipeId/${recipeId}`);
-        const totalRatings = ratingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
-        const average = ratingsResponse.data.length > 0 ? totalRatings / ratingsResponse.data.length : 0;
+        // Fetch ratings
+        const ratingsData = await fetchRatingsByRecipeId(recipeId);
+        const totalRatings = ratingsData.reduce((acc, rating) => acc + rating.rating, 0);
+        const average = ratingsData.length > 0 ? totalRatings / ratingsData.length : 0;
         setAverageRating(average);
 
-        const userRatingData = ratingsResponse.data.find(rating => rating.userId === loggedInUserId);
+        const userRatingData = ratingsData.find(rating => rating.userId === loggedInUserId);
         if (userRatingData) {
           setUserRating(userRatingData.rating);
           setHasRated(true);
         }
 
-        const likesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/likes/${recipeId}`);
-        setLikes(likesResponse.data.likes);
+        // Fetch likes count
+        const likesCount = await fetchLikesCount(recipeId);
+        setLikes(likesCount);
 
-        const favoritesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/favorites/recipeId/${recipeId}`);
-        setFavoriteCount(favoritesResponse.data.favoriteCount);
-        const userFavorite = favoritesResponse.data.favorites.find(fav => fav.userId === loggedInUserId);
+        // Fetch favorites
+        const favoritesCount = await fetchFavoritesCount(recipeId);
+        setFavoriteCount(favoritesCount);
+        const userFavorite = checkIfFavorited(favoritesCount.favorites, loggedInUserId);
         setIsFavorited(!!userFavorite);
 
       } catch (error) {
@@ -80,18 +90,13 @@ const RecipeDetail = () => {
         return;
       }
 
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/ratings`, {
-        userId: userId,
-        recipeId,
-        rating,
-      });
-
+      await submitRating(userId, recipeId, rating);
       setUserRating(rating);
       setHasRated(true);
-
-      const updatedRatingsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/ratings/recipeId/${recipeId}`);
-      const totalUpdatedRatings = updatedRatingsResponse.data.reduce((acc, rating) => acc + rating.rating, 0);
-      const updatedAverage = updatedRatingsResponse.data.length > 0 ? totalUpdatedRatings / updatedRatingsResponse.data.length : 0;
+      
+      const updatedRatingsResponse = await fetchRatingsByRecipeId(recipeId);
+      const totalUpdatedRatings = updatedRatingsResponse.reduce((acc, rating) => acc + rating.rating, 0);
+      const updatedAverage = updatedRatingsResponse.length > 0 ? totalUpdatedRatings / updatedRatingsResponse.length : 0;
       setAverageRating(updatedAverage);
 
     } catch (error) {
@@ -102,16 +107,11 @@ const RecipeDetail = () => {
   const handleFavorite = async () => {
     try {
       if (isFavorited) {
-        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
-          data: { userId: userId, recipeId },
-        });
+        await removeFavorite(userId, recipeId);
         setIsFavorited(false);
         setFavoriteCount(prevCount => prevCount - 1);
       } else {
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
-          userId: userId,
-          recipeId,
-        });
+        await addFavorite(userId, recipeId);
         setIsFavorited(true);
         setFavoriteCount(prevCount => prevCount + 1);
       }
@@ -128,14 +128,9 @@ const RecipeDetail = () => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/comments`, {
-        userId: userId,
-        recipeId,
-        comment: newComment,
-      });
-
+      const response = await postComment(userId, recipeId, newComment);
       const userComment = await fetchUserData(userId);
-      setComments(prevComments => [...prevComments, { ...response.data, user: userComment }]);
+      setComments(prevComments => [...prevComments, { ...response, user: userComment }]);
       setNewComment('');
 
     } catch (error) {
@@ -150,7 +145,7 @@ const RecipeDetail = () => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${commentId}`);
+      await deleteComment(commentId);
       setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
     } catch (error) {
       console.error('Error deleting comment:', error);
@@ -171,10 +166,7 @@ const RecipeDetail = () => {
 
   const handleEditComment = async () => {
     try {
-      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${editingCommentId}`, {
-        comment: editingCommentText,
-      });
-
+      await updateComment(editingCommentId, editingCommentText);
       setComments(prevComments => prevComments.map(comment => 
         comment._id === editingCommentId ? { ...comment, comment: editingCommentText } : comment
       ));
