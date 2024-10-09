@@ -45,6 +45,20 @@ export const fetchRecipesByCategory = async (categoryId) => {
   }
 };
 
+// Fetch a random recipe
+export const fetchRandomRecipe = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/random`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch random recipe');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching random recipe:', error);
+    throw error;
+  }
+};
+
 // Fetch recipe details
 export const fetchRecipeDetails = async (recipeId) => {
   try {

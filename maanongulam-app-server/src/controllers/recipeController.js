@@ -222,3 +222,15 @@ export const getRecipesByCategoryId = async (req, res) => {
         res.status(500).json({ message: 'Error fetching recipes', error: error.message });
     }
   };
+  
+
+  // Get 10 random recipes
+  export const getRandomRecipes = async (req, res) => {
+    try {
+      const recipes = await Recipe.aggregate([{ $match: { isDeleted: false } }, { $sample: { size: 10 } }]);
+      res.status(200).json(recipes);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching random recipes', error: error.message });
+    }
+  };
+  

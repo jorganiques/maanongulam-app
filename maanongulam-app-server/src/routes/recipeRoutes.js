@@ -8,10 +8,14 @@ import {
   deleteRecipe, 
   searchRecipes,
   fetchAndSaveRecipesByCategory, 
-  getRecipesByCategoryId
+  getRecipesByCategoryId,
+  getRandomRecipes,
 } from '../controllers/recipeController.js';
 
 const router = express.Router();
+
+// GET /recipes/random - Get 10 random recipes
+router.get('/random', getRandomRecipes);
 
 // Route for creating a recipe with image upload
 router.post('/', upload.single('image'), createRecipe);

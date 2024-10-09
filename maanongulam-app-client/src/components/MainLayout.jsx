@@ -24,7 +24,7 @@ const MainLayout = () => {
       {!isChatOpen && (
         <button
           onClick={toggleChat}
-          className="bg-blue-500 text-white p-3 rounded-full fixed bottom-5 right-5 hover:bg-blue-600 shadow-lg"
+          className="bg-orange-400 text-white p-3 rounded-full fixed bottom-5 right-5 hover:bg-orange-600 shadow-lg"
         >
           <AiOutlineMessage size={24} />
         </button>

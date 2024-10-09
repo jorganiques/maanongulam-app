@@ -4,7 +4,7 @@ import axios from 'axios';
 const CategoriesCarousel = ({ onCategorySelect }) => {
   const [categories, setCategories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const categoriesToShow = 6; // Number of categories to display at a time
+  const categoriesToShow = 5; // Number of categories to display at a time
 
   const fetchCategories = async () => {
     try {

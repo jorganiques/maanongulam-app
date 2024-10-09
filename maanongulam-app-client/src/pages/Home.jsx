@@ -65,13 +65,13 @@ const Home = () => {
         className="flex items-center justify-between p-4 bg-white shadow"
         style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)' }}
       >
-        <button onClick={() => window.location.reload()} className="focus:outline-none">
+        <Link to="/">
           <img
             src={logo} 
             alt="Ma! Anong ulam? Logo"
             className="h-32 -mt-7 -mb-5"
           />
-        </button>
+        </Link>
 
         <div className="flex items-center space-x-4">
           <button 
