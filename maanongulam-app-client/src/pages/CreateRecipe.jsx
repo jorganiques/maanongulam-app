@@ -1,4 +1,3 @@
-// src/pages/CreateRecipe.js
 import React, { useEffect, useState } from 'react';  
 import { fetchCategories } from '../api/categoryApi'; 
 import { createRecipe } from '../api/recipeApi'; 
@@ -10,10 +9,11 @@ const CreateRecipe = ({ onClose }) => {
     ingredients: [''],
     instructions: '',
     categoryId: '',
-    userId: '',
+    userId: '', // Initially empty, will be set in useEffect
   });
   const [imageFiles, setImageFiles] = useState([]); // State to hold multiple files
 
+  // Load categories and set userId from localStorage
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -25,6 +25,14 @@ const CreateRecipe = ({ onClose }) => {
     };
 
     loadCategories();
+
+    // Retrieve userId from localStorage or other auth logic
+    const storedUserId = localStorage.getItem('userId'); // Ensure the key matches your app's storage
+    if (storedUserId) {
+      setRecipe((prev) => ({ ...prev, userId: storedUserId }));
+    } else {
+      console.error('User ID not found');
+    }
   }, []);
 
   const handleChange = (e) => {
@@ -54,6 +62,11 @@ const CreateRecipe = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!recipe.userId) {
+      console.error('User ID is missing');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('title', recipe.title);

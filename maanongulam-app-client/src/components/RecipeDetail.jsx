@@ -70,7 +70,7 @@ const RecipeDetail = () => {
         // Fetch favorites
         const favoritesCount = await fetchFavoritesCount(recipeId);
         setFavoriteCount(favoritesCount);
-        const userFavorite = checkIfFavorited(favoritesCount.favorites, loggedInUserId);
+        const userFavorite = await checkIfFavorited(favoritesCount.favorites, loggedInUserId);
         setIsFavorited(!!userFavorite);
 
       } catch (error) {
