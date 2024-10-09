@@ -38,24 +38,26 @@ const AuthenticationScreen = () => {
   const handleSubmit = async (values) => {
     try {
       localStorage.setItem('username', values.username);
-      
       const data = await authenticateUser(values, isLogin);
   
-      // If authentication is successful
-      console.log(data);
       localStorage.setItem('userId', data.userId);
       navigate('/home');
     } catch (error) {
-      if (!initialValues.password || !initialValues.username) {
-        setFormError("Username or Password is Incorrect . Please try again.");
+      console.error('Error details:', error.message); // Log the exact error
+      if (error.message.includes('User already exists')) {
+        setFormError("The user already exists. Please use a different email or username.");
+      } else if (error.message.includes('Invalid email')) {
+        setFormError("The email format is invalid. Please enter a valid email address.");
+      } else if (error.message.includes('User not found')) {
+        setFormError("The user does not exist. Please register or try again.");
+      } else if (error.message.includes('Invalid credentials')) { // Change this to match your backend response
+        setFormError("The username or password is incorrect. Please try again.");
       } else {
-        console.error('Error:', error);
-        setFormError("Something Went Wrong. Please try again later.");
+        setFormError("Something went wrong. Please try again later.");
       }
     }
   };
-  
-
+ 
   // Component for field with error message
   // eslint-disable-next-line react/prop-types
   const FieldWithError = ({ name, placeholder, type = 'text' }) => (
