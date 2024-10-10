@@ -8,7 +8,9 @@ export const createRating = async (req, res) => {
     // Check if the user has already rated this recipe
     const existingRating = await Rating.findOne({ userId, recipeId });
     if (existingRating) {
-      return res.status(400).json({ message: 'User has already rated this recipe' });
+      existingRating.isLiked = isLiked;
+      await existingRating.save();
+      return res.status(200).json(existingRating); // Updated to return 200
     }
 
     const newRating = new Rating({ userId, recipeId, rating, isLiked });
@@ -105,5 +107,32 @@ export const getAverageRating = async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch average rating:', error);
     res.status(500).json({ error: 'Failed to fetch average rating.' });
+  }
+};
+
+// Toggle like/unlike for a recipe
+export const toggleLike = async (req, res) => {
+  const { userId, isLiked } = req.body;
+  const { recipeId } = req.params;
+
+  try {
+    // Check if the user has already rated the recipe
+    let rating = await Rating.findOne({ userId, recipeId });
+
+    if (rating) {
+      // If rating exists, update the isLiked field
+      rating.isLiked = isLiked;
+      rating.lastUpdated = Date.now();
+      await rating.save();
+    } else {
+      // If rating does not exist, create a new rating with isLiked
+      rating = new Rating({ userId, recipeId, isLiked });
+      await rating.save();
+    }
+
+    res.status(200).json({ message: 'Like status updated successfully', isLiked: rating.isLiked });
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ message: 'Error toggling like', error });
   }
 };
