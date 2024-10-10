@@ -2,10 +2,10 @@ import Comment from '../models/Comment.js';
 
 // Create a new comment
 export const createComment = async (req, res) => {
-  const { userId, recipeId, comment } = req.body; // Destructure username
+  const { userId, recipeId, comment } = req.body;
 
   try {
-    const newComment = new Comment({ userId, recipeId, comment }); // Include username
+    const newComment = new Comment({ userId, recipeId, comment });
     await newComment.save();
     res.status(201).json(newComment);
   } catch (error) {
@@ -27,15 +27,15 @@ export const getCommentsByRecipe = async (req, res) => {
   }
 };
 
-// Update a comment by commentId
+// Update a comment by id
 export const updateComment = async (req, res) => {
-  const { commentId } = req.params;
+  const { id } = req.params; // Accessing the id parameter
   const { comment } = req.body;
 
   try {
     const updatedComment = await Comment.findOneAndUpdate(
-      { commentId }, // Use commentId for lookup
-      { comment, lastUpdated: Date.now() }, // Update lastUpdated field
+      { _id: id }, // Lookup by commentId using the id parameter
+      { comment, lastUpdated: Date.now() }, // Update the comment and lastUpdated field
       { new: true }
     );
 
@@ -50,13 +50,13 @@ export const updateComment = async (req, res) => {
   }
 };
 
-// Soft delete a comment by commentId
+// Soft delete a comment by id
 export const deleteComment = async (req, res) => {
-  const { commentId } = req.params;
+  const { id } = req.params; // Accessing the id parameter
 
   try {
     const deletedComment = await Comment.findOneAndUpdate(
-      { commentId }, // Use commentId for lookup
+      { _id: id }, // Lookup by commentId using the id parameter
       { isDeleted: true }, // Set isDeleted to true
       { new: true }
     );

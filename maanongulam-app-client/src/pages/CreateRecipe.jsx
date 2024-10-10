@@ -14,6 +14,8 @@ const CreateRecipe = ({ onClose }) => {
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [loading, setLoading] = useState(false); // State for loading
+  const [error, setError] = useState(''); // State for error messages
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -65,15 +67,26 @@ const CreateRecipe = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(''); // Reset error
 
-    if (!recipe.userId) {
-      console.error('User ID is missing');
+    // Validate ingredients
+    if (recipe.ingredients.every(ingredient => ingredient.trim() === '')) {
+      setError('Please add at least one ingredient.');
+      setLoading(false);
       return;
     }
 
     const formData = new FormData();
     formData.append('title', recipe.title);
-    formData.append('ingredients', JSON.stringify(recipe.ingredients));
+    
+    // Append each ingredient separately
+    recipe.ingredients.forEach((ingredient) => {
+      if (ingredient.trim() !== '') { // Check to avoid empty strings
+        formData.append('ingredients[]', ingredient.trim());
+      }
+    });
+
     formData.append('instructions', recipe.instructions);
     formData.append('categoryId', recipe.categoryId);
     formData.append('userId', recipe.userId);
@@ -84,9 +97,22 @@ const CreateRecipe = ({ onClose }) => {
 
     try {
       await createRecipe(formData);
-      onClose();
+      onClose(); // Close modal or reset form after success
+      // Optionally reset the form state
+      setRecipe({
+        title: '',
+        ingredients: [''],
+        instructions: '',
+        categoryId: '',
+        userId: '',
+      });
+      setImageFiles([]);
+      setImagePreviews([]);
     } catch (error) {
+      setError('Failed to create recipe. Please try again.');
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,11 +123,12 @@ const CreateRecipe = ({ onClose }) => {
   return (
     <div className="bg-gray-100 min-h-screen p-8">
       <h2 className="text-3xl font-bold text-center text-gray-700">Create a Recipe</h2>
+      {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
         
         {/* Image Upload with Camera Icon */}
         <div className="w-full md:w-1/2 mx-auto">
-        <label class="flex justify-center items-center block text-lg font-semibold text-gray-600 mb-2">Image Upload:</label>
+          <label className="flex justify-center items-center block text-lg font-semibold text-gray-600 mb-2">Image Upload:</label>
           <div className="flex items-center justify-center">
             <label 
               htmlFor="imageUpload"
@@ -123,13 +150,13 @@ const CreateRecipe = ({ onClose }) => {
           
           {/* Preview images */}
           {imagePreviews.length > 0 && (
-            <div className="flex gap-2 mt-4">
+            <div className="justify-center items-center flex gap-2 mt-4">
               {imagePreviews.map((preview, index) => (
                 <img
                   key={index}
                   src={preview}
                   alt="Preview"
-                  className="w-24 h-24 object-cover rounded"
+                  className="w-36 h-36 object-cover rounded"
                 />
               ))}
             </div>
@@ -214,10 +241,18 @@ const CreateRecipe = ({ onClose }) => {
 
         {/* Submit/Cancel Buttons */}
         <div className="flex justify-end space-x-4">
-          <button type="submit" className="bg-orange-400 text-white py-2 px-6 rounded hover:bg-orange-500 transition-all">
-            Create
+          <button 
+            type="submit" 
+            className={`bg-orange-400 text-white py-2 px-6 rounded hover:bg-orange-500 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+            disabled={loading}
+          >
+            {loading ? 'Creating...' : 'Create'}
           </button>
-          <button type="button" onClick={handleCancel} className="text-blue-500 hover:text-blue-700 transition-colors">
+          <button 
+            type="button" 
+            onClick={handleCancel} 
+            className="text-blue-500 hover:text-blue-700 transition-colors"
+          >
             Cancel
           </button>
         </div>

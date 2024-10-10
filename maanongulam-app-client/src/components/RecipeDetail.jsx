@@ -161,11 +161,11 @@ const RecipeDetail = () => {
     }
   };
 
-  const openEditModal = (comment) => {
-    setEditingCommentId(comment._id);
-    setEditingCommentText(comment.comment);
+  const openEditModal = (commentId, commentText) => {
+    setEditingCommentId(commentId);
+    setEditingCommentText(commentText); 
     setShowEditModal(true);
-  };
+};
 
   const closeEditModal = () => {
     setShowEditModal(false);
@@ -174,16 +174,27 @@ const RecipeDetail = () => {
   };
 
   const handleEditComment = async () => {
-    try {
-      await updateComment(editingCommentId, editingCommentText);
-      setComments(prevComments => prevComments.map(comment => 
-        comment._id === editingCommentId ? { ...comment, comment: editingCommentText } : comment
-      ));
-      closeEditModal();
-    } catch (error) {
-      console.error('Error editing comment:', error);
+    console.log('Editing Comment ID:', editingCommentId);
+    if (!editingCommentId) {
+        console.error('Editing comment ID is null.'); // Debugging message
+        return; // Exit the function if ID is null
     }
-  };
+    
+    try {
+        // Update comment via API and update state
+        const updatedComment = await updateComment(editingCommentId, editingCommentText);
+        console.log('Updated Comment:', updatedComment);
+        // Check if the updatedComment object structure matches your expectations
+        setComments(prevComments => 
+            prevComments.map(comment => 
+                comment._id === editingCommentId ? { ...comment, comment: updatedComment.comment } : comment
+            )
+        );
+        closeEditModal();
+    } catch (error) {
+        console.error('Error editing comment:', error); // Log the error
+    }
+};
 
   if (!recipe) return <p>Loading...</p>;
 

@@ -17,11 +17,16 @@ export const postComment = async (userId, recipeId, comment) => {
 };
 
 export const deleteComment = async (commentId) => {
-  await axios.delete(`${API_URL}/api/comments/${commentId}`);
+  await axios.delete(`${API_URL}/api/comments/commentId/${commentId}`);
 };
 
 export const updateComment = async (commentId, commentText) => {
-  await axios.put(`${API_URL}/api/comments/${commentId}`, {
+  if (!commentId) {
+    throw new Error('Comment ID is required for updating.'); // Ensure you have the comment ID
+  }
+
+  const response = await axios.put(`${API_URL}/api/comments/${commentId}`, {
     comment: commentText,
   });
+  return response.data; // Return the updated comment
 };
