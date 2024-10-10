@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/table6.png';
 import { fetchUserData } from '../api/userApi';
@@ -15,11 +15,13 @@ const MyProfile = () => {
     recipes: [
       { id: 1, title: 'Spaghetti Carbonara', image: 'https://via.placeholder.com/300' },
       { id: 2, title: 'Hawaiian Pizza', image: 'https://via.placeholder.com/300' },
-    ]
+    ],
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBio, setNewBio] = useState(user.bio);
+  const [image, setImage] = useState(null);
+  const hiddenFileInput = useRef(null);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -33,6 +35,12 @@ const MyProfile = () => {
             location: data.location || user.location,
             profilePicture: data.profilePicture || user.profilePicture,
           });
+
+          // Load the image from localStorage if it exists
+          const storedImage = localStorage.getItem('profilePicture');
+          if (storedImage) {
+            setImage(storedImage);
+          }
         } catch (error) {
           console.error('Error fetching user data', error);
         }
@@ -48,6 +56,74 @@ const MyProfile = () => {
   const saveBio = () => {
     setUser({ ...user, bio: newBio });
     setIsModalOpen(false);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const imgname = event.target.files[0].name;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const img = new Image();
+      img.src = reader.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = Math.max(img.width, img.height);
+        canvas.width = maxSize;
+        canvas.height = maxSize;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(
+          img,
+          (maxSize - img.width) / 2,
+          (maxSize - img.height) / 2
+        );
+        canvas.toBlob(
+          (blob) => {
+            const file = new File([blob], imgname, {
+              type: "image/png",
+              lastModified: Date.now(),
+            });
+
+            console.log(file);
+            setImage(file);
+          },
+          "image/jpeg",
+          0.8
+        );
+      };
+    };
+  };
+
+  const handleUploadButtonClick = (file) => {
+    const myHeaders = new Headers();
+    const token = "adhgsdaksdhk938742937423";
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const formdata = new FormData();
+    formdata.append("file", file);
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: formdata,
+      redirect: "follow",
+    };
+
+    fetch("https://trickuweb.com/upload/profile_pic", requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(JSON.parse(result));
+        const profileurl = JSON.parse(result);
+        setImage(profileurl.img_url);
+
+        // Store the image URL in localStorage
+        localStorage.setItem('profilePicture', profileurl.img_url);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  const handleClick = (event) => {
+    hiddenFileInput.current.click();
   };
 
   return (
@@ -68,12 +144,34 @@ const MyProfile = () => {
         >
           Back to Home
         </button>
-        <div className="flex items-center space-x-10">
-          <img
-            src={user.profilePicture}
-            alt="Profile"
-            className="w-36 h-36 rounded-full border-4 border-gray-200 shadow-lg"
-          />
+        {/* ------------------IMAGE UPLOAD------------------ */}
+        <div className="flex items-center space-x-10"> 
+          <div className="w-36 h-36 rounded-full border-4 border-gray-200 shadow-lg overflow-hidden">
+            <div>
+              <div onClick={handleClick} style={{ cursor: "pointer" }}>
+                {image ? (
+                  <img src={URL.createObjectURL(image)} alt="upload image" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <img src="./photo.png" alt="upload image" className="w-full h-full object-cover rounded-full" />
+                )}
+
+                <input
+                  id="image-upload-input"
+                  type="file"
+                  onChange={handleImageChange}
+                  ref={hiddenFileInput}
+                  style={{ display: "none" }}
+                />
+              </div>
+              <button
+                className="image-upload-button"
+                onClick={() => handleUploadButtonClick(image)}
+              >
+                Upload
+              </button>
+            </div>
+          </div>
+          
           <div>
             <h1 className="text-5xl font-extrabold text-gray-900">{user.name}</h1>
             <p className="text-gray-600">{user.location}</p>
@@ -125,38 +223,6 @@ const MyProfile = () => {
             </div>
           </div>
         )}
-
-        <style>
-          {`
-            .food-animation {
-              position: absolute;
-              top: 140px;
-              left: 47%;
-              transform: translateX(-50%);
-              animation: float 5s ease-in-out infinite;
-            }
-            
-            .food-animation img {
-              width: 100px;
-              display: flex;
-              position: relative;
-              justify-content: center;
-              align-items: center;
-            }
-
-            @keyframes float {
-              0% {
-                transform: translateY(0);
-              }
-              50% {
-                transform: translateY(-20px);
-              }
-              100% {
-                transform: translateY(0);
-              }
-            }
-          `}
-        </style>
       </div>
     </div>
   );
