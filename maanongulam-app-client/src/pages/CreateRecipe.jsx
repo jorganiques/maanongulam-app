@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';  
-import { fetchCategories } from '../api/categoryApi'; 
-import { createRecipe } from '../api/recipeApi'; 
+import React, { useEffect, useState } from 'react';
+import { fetchCategories } from '../api/categoryApi';
+import { createRecipe } from '../api/recipeApi';
+import { FaCamera } from 'react-icons/fa';
 
 const CreateRecipe = ({ onClose }) => {
   const [categories, setCategories] = useState([]);
@@ -9,11 +10,11 @@ const CreateRecipe = ({ onClose }) => {
     ingredients: [''],
     instructions: '',
     categoryId: '',
-    userId: '', // Initially empty, will be set in useEffect
+    userId: '',
   });
-  const [imageFiles, setImageFiles] = useState([]); // State to hold multiple files
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
-  // Load categories and set userId from localStorage
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -26,8 +27,7 @@ const CreateRecipe = ({ onClose }) => {
 
     loadCategories();
 
-    // Retrieve userId from localStorage or other auth logic
-    const storedUserId = localStorage.getItem('userId'); // Ensure the key matches your app's storage
+    const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setRecipe((prev) => ({ ...prev, userId: storedUserId }));
     } else {
@@ -57,7 +57,10 @@ const CreateRecipe = ({ onClose }) => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImageFiles(files); // Update state to hold multiple files
+    setImageFiles(files);
+    
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
   };
 
   const handleSubmit = async (e) => {
@@ -73,61 +76,87 @@ const CreateRecipe = ({ onClose }) => {
     formData.append('ingredients', JSON.stringify(recipe.ingredients));
     formData.append('instructions', recipe.instructions);
     formData.append('categoryId', recipe.categoryId);
-    formData.append('userId', recipe.userId); // Include userId
+    formData.append('userId', recipe.userId);
 
-    // Append all selected images
     imageFiles.forEach((file) => {
-      formData.append('image', file); // Use 'image' to match the backend
+      formData.append('image', file);
     });
 
     try {
       await createRecipe(formData);
-      onClose(); // Close the modal on successful creation
+      onClose();
     } catch (error) {
       console.error(error);
     }
   };
 
   const handleCancel = () => {
-    onClose(); // Close the modal when cancel is clicked
+    onClose();
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4">
-      <h2 className="text-2xl font-bold">Create a Recipe</h2>
-      <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap">
-        {/* First Column */}
-        <div className="w-full md:w-1/2 p-2">
-          <div className="mb-4">
-            <label className="block">Image Upload:</label>
+    <div className="bg-gray-100 min-h-screen p-8">
+      <h2 className="text-3xl font-bold text-center text-gray-700">Create a Recipe</h2>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+        
+        {/* Image Upload with Camera Icon */}
+        <div className="w-full md:w-1/2 mx-auto">
+        <label class="flex justify-center items-center block text-lg font-semibold text-gray-600 mb-2">Image Upload:</label>
+          <div className="flex items-center justify-center">
+            <label 
+              htmlFor="imageUpload"
+              className="flex items-center justify-center w-24 h-24 border-2 border-dashed border-gray-400 rounded-full cursor-pointer hover:bg-gray-100 transition"
+            >
+              <FaCamera className="text-4xl text-gray-500" />
+              <span className="text-2xl text-gray-500 absolute top-12 right-12">+</span>
+            </label>
             <input
+              id="imageUpload"
               type="file"
               onChange={handleImageChange}
-              className="p-2 border rounded w-full"
+              className="hidden" // Hide the file input
               accept="image/*"
-              multiple // Accept multiple files
+              multiple
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block">Title:</label>
+          
+          {/* Preview images */}
+          {imagePreviews.length > 0 && (
+            <div className="flex gap-2 mt-4">
+              {imagePreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview}
+                  alt="Preview"
+                  className="w-24 h-24 object-cover rounded"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recipe Title and Category */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-lg font-semibold text-gray-600">Title:</label>
             <input
               type="text"
               name="title"
               value={recipe.title}
               onChange={handleChange}
               required
-              className="p-2 border rounded w-full"
+              className="p-2 border rounded w-full mt-2 focus:ring-2 focus:ring-orange-400"
             />
           </div>
-          <div className="mb-4">
-            <label className="block">Category:</label>
+          <div>
+            <label className="block text-lg font-semibold text-gray-600">Category:</label>
             <select
               name="categoryId"
               value={recipe.categoryId}
               onChange={handleChange}
               required
-              className="p-2 border rounded w-full"
+              className="p-2 border rounded w-full mt-2 focus:ring-2 focus:ring-orange-400"
             >
               <option value="">Select a category</option>
               {categories.map((category) => (
@@ -139,49 +168,58 @@ const CreateRecipe = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Second Column */}
-        <div className="w-full md:w-1/2 p-2">
-          <div className="mb-4">
-            <label className="block">Ingredients:</label>
-            {recipe.ingredients.map((ingredient, index) => (
-              <div key={index} className="flex items-center mb-2">
-                <input
-                  type="text"
-                  value={ingredient}
-                  onChange={(e) => handleIngredientChange(index, e.target.value)}
-                  className="p-2 border rounded w-full"
-                  placeholder={`Ingredient ${index + 1}`}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => removeIngredient(index)}
-                  className="text-red-500 ml-2"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button type="button" onClick={addIngredient} className="text-blue-500">
-              Add Ingredient
-            </button>
-          </div>
-          <div className="mb-4">
-            <label className="block">Instructions:</label>
-            <textarea
-              name="instructions"
-              value={recipe.instructions}
-              onChange={handleChange}
-              required
-              className="p-2 border rounded w-full"
-              rows="4"
-            />
-          </div>
+        {/* Ingredients with Add/Remove */}
+        <div>
+          <label className="block text-lg font-semibold text-gray-600">Ingredients:</label>
+          {recipe.ingredients.map((ingredient, index) => (
+            <div key={index} className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                value={ingredient}
+                onChange={(e) => handleIngredientChange(index, e.target.value)}
+                className="p-2 border rounded w-full focus:ring-2 focus:ring-orange-400"
+                placeholder={`Ingredient ${index + 1}`}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => removeIngredient(index)}
+                className="p-1 text-red-500 hover:text-red-700 transition-colors"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addIngredient}
+            className="text-blue-500 hover:text-blue-700 transition-colors"
+          >
+            + Add Ingredient
+          </button>
         </div>
-        
-        <div className="w-full flex justify-end">
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">Create Recipe</button>
-          <button type="button" onClick={handleCancel} className="text-blue-500 ml-4">Cancel</button>
+
+        {/* Instructions */}
+        <div>
+          <label className="block text-lg font-semibold text-gray-600">Instructions:</label>
+          <textarea
+            name="instructions"
+            value={recipe.instructions}
+            onChange={handleChange}
+            required
+            className="p-2 border rounded w-full mt-2 focus:ring-2 focus:ring-orange-400"
+            rows="5"
+          />
+        </div>
+
+        {/* Submit/Cancel Buttons */}
+        <div className="flex justify-end space-x-4">
+          <button type="submit" className="bg-orange-400 text-white py-2 px-6 rounded hover:bg-orange-500 transition-all">
+            Create
+          </button>
+          <button type="button" onClick={handleCancel} className="text-blue-500 hover:text-blue-700 transition-colors">
+            Cancel
+          </button>
         </div>
       </form>
     </div>
