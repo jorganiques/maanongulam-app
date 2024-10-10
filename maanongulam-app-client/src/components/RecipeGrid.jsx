@@ -1,3 +1,4 @@
+// src/components/RecipeGrid.jsx
 import React, { useContext, useEffect } from 'react';
 import RecipeCard from './RecipeCard';
 import { RecipeContext } from '../context/RecipeContext';
@@ -11,11 +12,13 @@ const RecipeGrid = ({ selectedCategoryId, onRecipeSelect }) => {
       try {
         let fetchedRecipes;
         if (selectedCategoryId) {
+          // Fetch all recipes of the selected category
           fetchedRecipes = await fetchRecipesByCategory(selectedCategoryId);
         } else {
-          fetchedRecipes = await fetchRandomRecipe(); // Fetch random recipes if no category is selected
+          // Fetch random recipes if no category is selected
+          fetchedRecipes = await fetchRandomRecipe();
         }
-        setRecipes(fetchedRecipes.slice(0, 10)); // Limit to 10 random recipes
+        setRecipes(fetchedRecipes); // Set the fetched recipes directly without slicing
       } catch (error) {
         console.error('Error fetching recipes:', error);
         setRecipes([]); // Reset recipes if there's an error
