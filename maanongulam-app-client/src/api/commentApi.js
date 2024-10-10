@@ -17,7 +17,7 @@ export const postComment = async (userId, recipeId, comment) => {
 };
 
 export const deleteComment = async (commentId) => {
-  await axios.delete(`${API_URL}/api/comments/commentId/${commentId}`);
+  await axios.delete(`${API_URL}/api/comments/${commentId}`);
 };
 
 export const updateComment = async (commentId, commentText) => {

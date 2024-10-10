@@ -279,10 +279,10 @@ const RecipeDetail = () => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
             <button onClick={handleFavorite} className={`flex items-center ${isFavorited ? 'text-red-500' : 'text-gray-600'} hover:text-red-500 transition duration-300`}>
-              <FaHeart className="mr-1" /> {favoriteCount} {isFavorited ? '' : ''}
+              <FaHeart className={`mr-1 ${isFavorited ? 'text-red-500' : 'text-gray-600'}`} /> {favoriteCount} 
             </button>
             <button onClick={handleLike} className={`flex items-center ${isLiked ? 'text-blue-500' : 'text-gray-600'} hover:text-blue-500 transition duration-300`}>
-              <FaThumbsUp className="mr-1 ml-2" /> {likes} {isLiked ? '' : ''}
+              <FaThumbsUp className={`mr-1 ml-2 ${isLiked ? 'text-blue-500' : 'text-gray-600'}` } /> {likes} 
             </button>
             <span className="ml-4 flex items-center"><FaComment className="mr-1" /> {comments.length}</span>
             <button onClick={handleShare} className="ml-4 flex items-center text-gray-600 hover:text-gray-800 transition duration-300"><FaShareAlt className="mr-1" /> Share</button>
@@ -291,67 +291,64 @@ const RecipeDetail = () => {
   
         {/* Comments Section */}
         <div className="max-h-64 overflow-y-scroll">
-        {comments.map(comment => (
-          <div key={comment._id} className="flex items-start border-b py-2">
-            <img src={comment.user.profilePicture || 'default-profile.png'} alt={comment.user.firstName} className="w-8 h-8 rounded-full mr-2" />
-            <div className="flex-1">
-              <div className="flex justify-between">
-                <span className="font-bold">{comment.user.firstName} {comment.user.lastName}</span>
-                {/* Show 3-dot menu only if the comment belongs to the logged-in user */}
-                {comment.userId === userId && (
-                  <div className="relative">
-                    <button onClick={() => setEditingCommentId(comment._id)} className="text-gray-500 hover:text-gray-700 transition duration-300">
-                      <FaEllipsisV />
-                    </button>
-
-                    {/* Conditionally render the dropdown when the ellipsis is clicked */}
-                    {editingCommentId === comment._id && (
-                      <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                        <button
-                          onClick={() => {
-                            openEditModal(comment); // Opens the modal
-                            setEditingCommentId(null); // Hide the dropdown after clicking Edit
-                          }}
-                          className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition duration-300"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteComment(comment._id)}
-                          className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-100 transition duration-300"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <p>{comment.comment}</p>
-              <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-        ))}
-
-        {/* Edit Comment Modal */}
-        {showEditModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-4 w-1/3">
-              <h3 className="text-xl font-bold mb-2">Edit Comment</h3>
-              <textarea
-                value={editingCommentText}
-                onChange={e => setEditingCommentText(e.target.value)}
-                className="w-full h-24 border rounded-md px-2 py-1"
-              />
-              <div className="flex justify-end mt-4">
-                <button onClick={closeEditModal} className="mr-2 bg-gray-500 text-white rounded-md px-4 py-2">Cancel</button>
-                <button onClick={handleEditComment} className="bg-green-500 text-white rounded-md px-4 py-2">Save</button>
+          {comments.map(comment => (
+            <div key={comment._id} className="flex items-start border-b py-2">
+              <img src={comment.user.profilePicture || 'default-profile.png'} alt={comment.user.firstName} className="w-8 h-8 rounded-full mr-2" />
+              <div className="flex-1">
+                <div className="flex justify-between">
+                  <span className="font-bold">{comment.user.firstName} {comment.user.lastName}</span>
+                  {comment.userId === userId && (
+                    <div className="relative">
+                      <button onClick={() => setEditingCommentId(comment._id)} className="text-gray-500 hover:text-gray-700 transition duration-300">
+                        <FaEllipsisV />
+                      </button>
+                      {editingCommentId === comment._id && (
+                        <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                          <button
+                            onClick={() => {
+                              openEditModal(comment._id, comment.comment); // Pass comment ID and text
+                              setEditingCommentId(null); // Hide the dropdown after clicking Edit
+                            }}
+                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition duration-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteComment(comment._id)}
+                            className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-100 transition duration-300"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <p>{comment.comment}</p>
+                <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
               </div>
             </div>
-          </div>
-        )}
+          ))}
 
-        </div>
+          {/* Edit Comment Modal */}
+          {showEditModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-4 w-1/3">
+                <h3 className="text-xl font-bold mb-2">Edit Comment</h3>
+                <textarea
+                  value={editingCommentText}
+                  onChange={e => setEditingCommentText(e.target.value)}
+                  className="w-full h-24 border rounded-md px-2 py-1"
+                />
+                <div className="flex justify-end mt-4">
+                  <button onClick={closeEditModal} className="mr-2 bg-gray-500 text-white rounded-md px-4 py-2">Cancel</button>
+                  <button onClick={handleEditComment} className="bg-green-500 text-white rounded-md px-4 py-2">Save</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+      </div>
 
         {/* Comment Input */}
         <form onSubmit={handleCommentSubmit} className="flex mt-4">
@@ -364,8 +361,8 @@ const RecipeDetail = () => {
           />
           <button type="submit" className="ml-2 bg-orange-400 text-red-900 hover:bg-red-900 hover:text-orange-400 rounded-full shadow-md transition duration-300 rounded-md px-4 py-2">Post</button>
         </form>
-      </div>
     </div>
+  </div>
   );
 };
 
