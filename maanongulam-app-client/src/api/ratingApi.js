@@ -24,12 +24,14 @@ export const fetchLikesCount = async (recipeId) => {
 // Example API function to toggle like/unlike
 export const toggleLike = async (userId, recipeId, isLiked) => {
   try {
-    const response = await axios.post(`${API_URL}/api/recipes/${recipeId}/like`, {
-      userId,
-      isLiked
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/${recipeId}/like`, {
+      method: 'POST', // or 'PUT' depending on your implementation
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, isLiked }), // Make sure the body contains the correct data
     });
-
-    return response.data;  // Return the response from the server
+    return response.json();
   } catch (error) {
     console.error('Error toggling like:', error);
     throw error;

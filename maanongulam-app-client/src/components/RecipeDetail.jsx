@@ -30,6 +30,10 @@ const RecipeDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    console.log('Editing Comment ID:', editingCommentId);
+    console.log('Editing Comment Text:', editingCommentText);
+    
     const fetchData = async () => {
       try {
         // Fetch recipe details
@@ -48,8 +52,15 @@ const RecipeDetail = () => {
         // Fetch comments
         const commentsData = await fetchCommentsByRecipeId(recipeId);
         const enrichedComments = await Promise.all(commentsData.map(async comment => {
-          const user = await fetchUserData(comment.userId);
-          return { ...comment, user };
+          try{
+            const user = await fetchUserData(comment.userId);
+            return { ...comment, user };
+          }
+          catch (error) {
+            console.error(`Error fetching user data for comment ${comment.commentId}:`, error);
+            return { ...comment, user: null }; // Handle user fetch error gracefully
+            }
+         
         }));
         setComments(enrichedComments);
 
@@ -87,24 +98,28 @@ const RecipeDetail = () => {
     if (recipeId) {
       fetchData();
     }
-  }, [recipeId]);
+  }, [recipeId, editingCommentId, editingCommentText]);
 
   const handleLike = async () => {
     try {
       // Toggle like status
-      const newLikeStatus = !isLiked;
-      await toggleLike(userId, recipeId, newLikeStatus);
+      const newIsLiked = !isLiked;
+      await toggleLike(loggedInUserId, recipeId, newIsLiked);
   
       // Update local state
-      setIsLiked(newLikeStatus);
+      setIsLiked(newIsLiked);
   
-      // Optionally, refetch likes count to keep UI updated
-      const likes = await fetchLikesCount(recipeId);
-      setLikesCount(likes);
+      // Optimistically update likes count
+      setLikesCount(prev => newIsLiked ? prev + 1 : prev - 1);
+  
+      // Optionally, refetch likes count to ensure it's accurate
+      const updatedLikesCount = await fetchLikesCount(recipeId);
+      setLikesCount(updatedLikesCount);
     } catch (error) {
       console.error('Failed to toggle like:', error);
     }
   };
+  
 
   const handleRating = async (rating) => {
     try {
@@ -189,6 +204,7 @@ const RecipeDetail = () => {
   
 
   const openEditModal = (commentId, commentText) => {
+    console.log('Opening Edit Modal with:', commentId, commentText);
     setEditingCommentId(commentId);
     setEditingCommentText(commentText); 
     setShowEditModal(true);
@@ -214,14 +230,14 @@ const RecipeDetail = () => {
         // Check if the updatedComment object structure matches your expectations
         setComments(prevComments => 
             prevComments.map(comment => 
-                comment._id === editingCommentId ? { ...comment, comment: updatedComment.comment } : comment
+                comment._Id === editingCommentId ? { ...comment, comment: updatedComment.comment } : comment
             )
         );
         closeEditModal();
     } catch (error) {
         console.error('Error editing comment:', error); // Log the error
     }
-};
+    };
 
   if (!recipe) return <p>Loading...</p>;
 
@@ -306,8 +322,7 @@ const RecipeDetail = () => {
                         <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                           <button
                             onClick={() => {
-                              openEditModal(comment._id, comment.comment); // Pass comment ID and text
-                              setEditingCommentId(null); // Hide the dropdown after clicking Edit
+                              openEditModal(comment.commentId, comment.comment); // Pass comment ID and text    
                             }}
                             className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition duration-300"
                           >

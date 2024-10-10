@@ -53,7 +53,7 @@ export const updateComment = async (req, res) => {
 // Soft delete a comment by id
 export const deleteComment = async (req, res) => {
   const { id } = req.params; // Accessing the id parameter
-  console.log(`Deleting comment with ID: ${id}`);
+  
 
   try {
     const deletedComment = await Comment.findOneAndUpdate(
