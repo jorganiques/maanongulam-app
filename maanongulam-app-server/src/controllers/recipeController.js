@@ -234,3 +234,19 @@ export const getRecipesByCategoryId = async (req, res) => {
     }
   };
   
+  // Get Recipes by User ID
+export const getRecipesByUserId = async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const recipes = await Recipe.find({ userId, isDeleted: false });
+      if (recipes.length === 0) {
+        return res.status(404).json({ message: 'No recipes found for this user' });
+      }
+      res.status(200).json(recipes);
+    } catch (error) {
+      console.error('Error fetching recipes by user ID:', error);
+      res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+    }
+  };
+  

@@ -10,12 +10,16 @@ import {
   fetchAndSaveRecipesByCategory, 
   getRecipesByCategoryId,
   getRandomRecipes,
+  getRecipesByUserId // Import the new function here
 } from '../controllers/recipeController.js';
 
 const router = express.Router();
 
 // GET /recipes/random - Get 10 random recipes
 router.get('/random', getRandomRecipes);
+
+// GET /recipes/user/:userId - Get recipes by user ID
+router.get('/user/:userId', getRecipesByUserId); // Add new route
 
 // Route for creating a recipe with image upload
 router.post('/', upload.single('image'), createRecipe);
