@@ -5,7 +5,7 @@ import backgroundImage from '../assets/table2.png';
 import { fetchUserData } from '../api/userApi';
 import { fetchCommentsByRecipeId, postComment, deleteComment, updateComment } from '../api/commentApi';
 import { fetchFavoritesCount, checkIfFavorited, addFavorite, removeFavorite} from '../api/favoriteApi';
-import { fetchRatingsByRecipeId, submitRating, fetchLikesCount } from '../api/ratingApi';
+import { fetchRatingsByRecipeId, submitRating, fetchLikesCount, toggleLike} from '../api/ratingApi';
 
 const RecipeDetail = () => {
   const { recipeId } = useParams();
@@ -15,6 +15,7 @@ const RecipeDetail = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [likes, setLikes] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
   const [creator, setCreator] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
@@ -24,6 +25,7 @@ const RecipeDetail = () => {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
   
   const navigate = useNavigate();
 
@@ -64,8 +66,12 @@ const RecipeDetail = () => {
         }
 
         // Fetch likes count
-        const likesCount = await fetchLikesCount(recipeId);
-        setLikes(likesCount);
+        const likes = await fetchLikesCount(recipeId);
+        setLikesCount(likes);
+
+        // Fetch user's like status (whether the user has liked the recipe)
+        const hasLiked = ratingsData.some(rating => rating.userId === loggedInUserId && rating.isLiked); // Adjust this based on your API
+        setIsLiked(hasLiked); // Set initial like status
 
         // Fetch favorites
         const favoritesCount = await fetchFavoritesCount(recipeId);
@@ -83,6 +89,23 @@ const RecipeDetail = () => {
     }
   }, [recipeId]);
 
+  const handleLike = async () => {
+    try {
+      // Toggle like status
+      const newLikeStatus = !isLiked;
+      await toggleLike(userId, recipeId, newLikeStatus);
+  
+      // Update local state
+      setIsLiked(newLikeStatus);
+  
+      // Optionally, refetch likes count to keep UI updated
+      const likes = await fetchLikesCount(recipeId);
+      setLikesCount(likes);
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
+
   const handleRating = async (rating) => {
     try {
       if (hasRated) {
@@ -98,7 +121,7 @@ const RecipeDetail = () => {
       }
   
       // If confirmed, proceed with submitting the rating
-      await submitRating(userId, recipeId, rating);
+      await submitRating(userId, recipeId, rating, );
       setUserRating(rating);
       setHasRated(true);
       
@@ -153,6 +176,9 @@ const RecipeDetail = () => {
   };
 
   const handleDeleteComment = async (commentId) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this comment?");
+    if (!isConfirmed) return;
+  
     try {
       await deleteComment(commentId);
       setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
@@ -160,6 +186,7 @@ const RecipeDetail = () => {
       console.error('Error deleting comment:', error);
     }
   };
+  
 
   const openEditModal = (commentId, commentText) => {
     setEditingCommentId(commentId);
@@ -252,9 +279,11 @@ const RecipeDetail = () => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
             <button onClick={handleFavorite} className={`flex items-center ${isFavorited ? 'text-red-500' : 'text-gray-600'} hover:text-red-500 transition duration-300`}>
-              <FaHeart className="mr-1" /> {favoriteCount} {isFavorited ? 'Unfavorite' : 'Favorite'}
+              <FaHeart className="mr-1" /> {favoriteCount} {isFavorited ? '' : ''}
             </button>
-            <span className="ml-4 flex items-center"><FaThumbsUp className="mr-1" /> {likes}</span>
+            <button onClick={handleLike} className={`flex items-center ${isLiked ? 'text-blue-500' : 'text-gray-600'} hover:text-blue-500 transition duration-300`}>
+              <FaThumbsUp className="mr-1 ml-2" /> {likes} {isLiked ? '' : ''}
+            </button>
             <span className="ml-4 flex items-center"><FaComment className="mr-1" /> {comments.length}</span>
             <button onClick={handleShare} className="ml-4 flex items-center text-gray-600 hover:text-gray-800 transition duration-300"><FaShareAlt className="mr-1" /> Share</button>
           </div>
