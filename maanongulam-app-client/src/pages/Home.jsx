@@ -25,8 +25,9 @@ const Home = () => {
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategoryId(categoryId);
+    setSearchType(''); 
   };
-
+ 
   const handleRecipeSelect = (recipeId) => {
     navigate(`/recipes/${recipeId}`);
   };
