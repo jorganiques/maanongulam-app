@@ -74,15 +74,14 @@ const Profile = () => {
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      const dataUrl = reader.result;
-      setImage(dataUrl);
+    if (!file) return;
 
-      // Store the image data URL in localStorage
-      localStorage.setItem('profilePicture', dataUrl);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result);
+      // Optionally, save the image data to your backend or state management
     };
+    reader.readAsDataURL(file);
   };
 
   const handleUploadButtonClick = (file) => {
@@ -125,6 +124,7 @@ const Profile = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed', // Fixes the background image in place
         paddingBottom: '50px',
       }}
     >
@@ -139,11 +139,19 @@ const Profile = () => {
         <div className="flex items-center space-x-10"> 
           <div className="w-36 h-36 rounded-full border-4 border-gray-200 shadow-lg overflow-hidden flex justify-center items-center">
             <div>
-              <div onClick={handleClick} style={{ cursor: "pointer" }}>
+              <div onClick={handleClick} style={{ cursor: "pointer", width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden" }}>
                 {image ? (
-                  <img src={image} className="w-full h-full object-cover rounded-none" />
+                  <img
+                    src={image}
+                    className="w-full h-full object-cover"
+                    style={{ objectFit: "cover" }} // Ensures the image fills the box
+                  />
                 ) : (
-                  <img src="./photo.png" className="w-full h-full object-cover rounded-none" />
+                  <img
+                    src="./photo.png"
+                    className="w-full h-full object-cover"
+                    style={{ objectFit: "cover" }} // Ensures the default image fills the box
+                  />
                 )}
 
                 <input
