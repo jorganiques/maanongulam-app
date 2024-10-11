@@ -26,12 +26,7 @@ const AuthenticationScreen = () => {
 
   const validationSchema = Yup.object({
     username: Yup.string().required('Required'),
-    password: Yup.string()
-      .matches(
-        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/,
-        "Password must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character."
-      )
-      .required('Required'),
+    password: Yup.string().required('Required'),
     firstName: isLogin ? Yup.string().nullable() : Yup.string().required('Required'),
     lastName: isLogin ? Yup.string().nullable() : Yup.string().required('Required'),
     email: isLogin ? Yup.string().nullable() : Yup.string().email('Invalid email').required('Required'),
