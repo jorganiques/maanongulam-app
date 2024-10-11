@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/table6.png';
+import axios from 'axios';
+import backgroundImage from '../assets/table5.png';
 import { fetchUserData } from '../api/userApi';
+import UserRecipes from '../components/UserRecipes';
 
-const MyProfile = () => {
+const Profile = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
   const [user, setUser] = useState({
     name: '',
     bio: 'Passionate home cook.',
-    location: 'Manila, Philippines',
     profilePicture: 'https://via.placeholder.com/150',
-    recipes: [
-      { id: 1, title: 'Spaghetti Carbonara', image: 'https://via.placeholder.com/300' },
-      { id: 2, title: 'Hawaiian Pizza', image: 'https://via.placeholder.com/300' },
-    ],
   });
 
+  const [recipes, setRecipes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBio, setNewBio] = useState(user.bio);
   const [image, setImage] = useState(null);
   const hiddenFileInput = useRef(null);
+
+  const handleRemoveImage = () => {
+    setImage(null);
+    localStorage.removeItem('profilePicture');
+  };
 
   useEffect(() => {
     const getUserData = async () => {
@@ -46,7 +49,18 @@ const MyProfile = () => {
         }
       }
     };
+
+    const fetchRecipes = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/recipes/user/${userId}`);
+        setRecipes(response.data);
+      } catch (error) {
+        console.error('Error fetching recipes:', error);
+      }
+    };
+
     getUserData();
+    fetchRecipes();
   }, [userId]);
 
   const handleBioChange = (event) => {
@@ -60,38 +74,14 @@ const MyProfile = () => {
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const imgname = event.target.files[0].name;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      const img = new Image();
-      img.src = reader.result;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const maxSize = Math.max(img.width, img.height);
-        canvas.width = maxSize;
-        canvas.height = maxSize;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(
-          img,
-          (maxSize - img.width) / 2,
-          (maxSize - img.height) / 2
-        );
-        canvas.toBlob(
-          (blob) => {
-            const file = new File([blob], imgname, {
-              type: "image/png",
-              lastModified: Date.now(),
-            });
+    if (!file) return;
 
-            console.log(file);
-            setImage(file);
-          },
-          "image/jpeg",
-          0.8
-        );
-      };
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result);
+      // Optionally, save the image data to your backend or state management
     };
+    reader.readAsDataURL(file);
   };
 
   const handleUploadButtonClick = (file) => {
@@ -134,6 +124,7 @@ const MyProfile = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed', // Fixes the background image in place
         paddingBottom: '50px',
       }}
     >
@@ -146,13 +137,21 @@ const MyProfile = () => {
         </button>
         {/* ------------------IMAGE UPLOAD------------------ */}
         <div className="flex items-center space-x-10"> 
-          <div className="w-36 h-36 rounded-full border-4 border-gray-200 shadow-lg overflow-hidden">
+          <div className="w-36 h-36 rounded-full border-4 border-gray-200 shadow-lg overflow-hidden flex justify-center items-center">
             <div>
-              <div onClick={handleClick} style={{ cursor: "pointer" }}>
+              <div onClick={handleClick} style={{ cursor: "pointer", width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden" }}>
                 {image ? (
-                  <img src={URL.createObjectURL(image)} alt="upload image" className="w-full h-full object-cover rounded-full" />
+                  <img
+                    src={image}
+                    className="w-full h-full object-cover"
+                    style={{ objectFit: "cover" }} // Ensures the image fills the box
+                  />
                 ) : (
-                  <img src="./photo.png" alt="upload image" className="w-full h-full object-cover rounded-full" />
+                  <img
+                    src="./photo.png"
+                    className="w-full h-full object-cover"
+                    style={{ objectFit: "cover" }} // Ensures the default image fills the box
+                  />
                 )}
 
                 <input
@@ -169,13 +168,19 @@ const MyProfile = () => {
               >
                 Upload
               </button>
+              <button
+                className="image-remove-button"
+                onClick={handleRemoveImage}
+              >
+                Remove
+              </button>
             </div>
           </div>
           
           <div>
             <h1 className="text-5xl font-extrabold text-gray-900">{user.name}</h1>
             <p className="text-gray-600">{user.location}</p>
-            <p className="text-gray-700 mt-2">{user.bio}</p>
+            <p className="text-gray-700 mt-2 text-lg">{user.bio}</p> {/* Increased font size */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="mt-2 text-blue-500 underline"
@@ -187,13 +192,25 @@ const MyProfile = () => {
 
         <div className="mt-14">
           <h2 className="text-4xl font-bold text-gray-800 mb-10">My Recipes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {user.recipes.map(recipe => (
-              <div key={recipe.id} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
-                <h3 className="text-3xl font-semibold text-gray-900">{recipe.title}</h3>
-                {recipe.image && <img src={recipe.image} alt={recipe.title} className="mt-6 rounded-lg" />}
-              </div>
-            ))}
+          <div className="grid grid-cols-1 gap-10">  {/* Ensure only one recipe per row */}
+            {recipes.length === 0 ? (
+              <p>You haven't posted any recipes yet.</p>
+            ) : (
+              recipes.map((recipe) => (
+                <UserRecipes
+                  key={recipe._id}
+                  recipeId={recipe._id}
+                  title={recipe.title}
+                  imageUrl={recipe.imageUrl}
+                  ingredients={recipe.ingredients}
+                  instructions={recipe.instructions}
+                  creator={recipe.creator}
+                  userRating={recipe.userRating || 0}
+                  averageRating={recipe.averageRating || 0}
+                  handleRating={() => {}} 
+                />
+              ))
+            )}
           </div>
         </div>
 
@@ -228,4 +245,4 @@ const MyProfile = () => {
   );
 };
 
-export default MyProfile;
+export default Profile;
