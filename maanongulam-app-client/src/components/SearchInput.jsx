@@ -3,56 +3,45 @@ import { FaSearch } from 'react-icons/fa';
 import { RecipeContext } from '../context/RecipeContext';
 import { searchRecipes } from '../api/recipeApi';
 
-const SearchInput = () => {
+const SearchInput = ({ onSearchTypeChange }) => { // Accept prop for search type change
   const { setRecipes } = useContext(RecipeContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setDropdownVisible(e.target.value.length > 0); // Show dropdown when there's input
+    setDropdownVisible(e.target.value.length > 0);
   };
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const data = await searchRecipes(searchTerm); // Use the API function
-
-      // Check if the data is an array and has recipes
-      if (Array.isArray(data) && data.length > 0) {
-        setRecipes(data); // Set the entire array of recipes
-      } else {
-        console.error('No recipes found');
-        setRecipes([]); // Clear the recipes if none are found
-      }
-    } catch (error) {
-      console.error('Error fetching recipes:', error);
-    }
+    // Handle search term submission (optional)
   };
 
   const handleOptionClick = async (option) => {
-    console.log(`Selected: ${option}`); // For debugging or further actions
-    const searchQuery = option.replace(' in Recipes', ''); // Extract the search term
-    setSearchTerm(searchQuery); // Set search term to the selected option
-    setDropdownVisible(false); // Hide dropdown after selection
-    
-    // Fetch recipes based on the selected option
-    try {
-      const data = await searchRecipes(searchQuery); // Use the API function
+    const searchQuery = option.replace(' in Recipes', '').replace(' in Users', ''); // Extract search term
+    setSearchTerm(searchQuery);
+    setDropdownVisible(false);
 
-      // Check if the data is an array and has recipes
+    if (option.includes('in Recipes')) {
+      onSearchTypeChange('Recipes'); // Update search type to Recipes
+    } else if (option.includes('in Users')) {
+      onSearchTypeChange('Users'); // Update search type to Users
+    }
+
+    // Fetch recipes or users based on the selected option
+    try {
+      const data = await searchRecipes(searchQuery);
       if (Array.isArray(data) && data.length > 0) {
-        setRecipes(data); // Set the entire array of recipes
+        setRecipes(data);
       } else {
-        console.error('No recipes found');
-        setRecipes([]); // Clear the recipes if none are found
+        setRecipes([]);
       }
     } catch (error) {
-      console.error('Error fetching recipes:', error);
+      console.error('Error fetching:', error);
     }
   };
 
-  // Dynamically generate dropdown options based on the current input
   const dropdownOptions = searchTerm ? [
     `${searchTerm} in Recipes`,
     `${searchTerm} in Users`
@@ -89,4 +78,4 @@ const SearchInput = () => {
   );
 };
 
-export default SearchInput;
+export default SearchInput
