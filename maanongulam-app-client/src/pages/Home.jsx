@@ -9,6 +9,7 @@ import Modal from '../components/Modal';
 import logo from '../assets/maulogo.png';
 import backgroundImage from '../assets/table2.png';
 import UserList from '../components/UserList';
+import profileDropDown from '../assets/drop-down-menu.webp';
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,7 +81,7 @@ const Home = () => {
 
           <div className="relative">
             <button onClick={toggleDropdown} className="focus:outline-none">
-              <img src="https://via.placeholder.com/40" alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={profileDropDown} alt="Profile" className="w-10 h-10 rounded-full" />
             </button>
             {isDropdownOpen && (
               <ul className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48">
