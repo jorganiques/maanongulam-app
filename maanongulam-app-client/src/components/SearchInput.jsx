@@ -15,7 +15,20 @@ const SearchInput = ({ onSearchTypeChange }) => { // Accept prop for search type
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    // Handle search term submission (optional)
+    try {
+      const data = await searchRecipes(searchTerm); // Use the API function
+
+      // Check if the data is an array and has recipes
+      if (Array.isArray(data) && data.length > 0) {
+        setRecipes(data); // Set the entire array of recipes
+      } else {
+        console.error('No recipes found');
+        setRecipes([]); // Clear the recipes if none are found
+      }
+      onSearchTypeChange(''); 
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+    }
   };
 
   const handleOptionClick = async (option) => {
