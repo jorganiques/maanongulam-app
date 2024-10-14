@@ -1,41 +1,62 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation, useParams } from 'react-router-dom'; 
-import { FaBars } from 'react-icons/fa';
+import { Link, useNavigate, useParams } from 'react-router-dom'; 
 import RecipeGrid from '../components/RecipeGrid';
 import SearchInput from '../components/SearchInput';
-import Chat from '../components/Chat';
 import CategoriesCarousel from '../components/CategoriesCarousel';
-import RecipeDetail from '../components/RecipeDetail'; // Import RecipeDetail
+import RecipeDetail from '../components/RecipeDetail'; 
+import CreateRecipe from './CreateRecipe'; 
+import Modal from '../components/Modal'; 
 import logo from '../assets/maulogo.png';
-import backgroundImage from '../assets/table3.png'
+import backgroundImage from '../assets/table2.png';
+import UserList from '../components/UserList';
+import profileDropDown from '../assets/drop-down-menu.webp';
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Profile dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [searchType, setSearchType] = useState(''); // New state for search type
   const navigate = useNavigate(); 
-  const { recipeId } = useParams(); // Get the recipeId from the URL
+  const { recipeId } = useParams(); 
+  const userId = localStorage.getItem('userId'); 
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleChat = () => setIsChatOpen(!isChatOpen);
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); 
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategoryId(categoryId);
+    setSearchType(''); 
   };
-
+ 
   const handleRecipeSelect = (recipeId) => {
-    navigate(`/recipes/${recipeId}`); // Navigate to RecipeDetail page
+    navigate(`/recipes/${recipeId}`);
   };
 
   const handleHomeClick = () => {
-    setSelectedCategoryId(null); // Reset selected category on home click
+    setSelectedCategoryId(null); 
   };
 
   const handleLogout = () => {
     localStorage.removeItem('userId'); 
     navigate('/auth'); 
+  };
+
+  const handleAccountSettings = () => {
+    navigate('/account-settings'); 
+  };
+
+  const handleCreateRecipeClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Function to update search type
+  const handleSearchTypeChange = (type) => {
+    setSearchType(type);
   };
 
   return (
@@ -48,104 +69,65 @@ const Home = () => {
         backgroundRepeat: 'no-repeat', 
       }}
     >
-      {/* Navbar */}
-      <nav
-        className="flex items-center justify-between p-4 bg-white shadow"
-        style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)' }} // Transparent background for the navbar
-      >
-        {/* Logo - Clickable and Refreshes the Homepage */}
+      <nav className="flex items-center justify-between p-4 bg-white shadow" style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)' }}>
         <Link to="/">
-          <img
-            src={logo} // Replace 'logo' with the actual path to the logo image if necessary
-            alt="Ma! Anong ulam? Logo"
-            className="h-32 -mt-7 -mb-5"
-          />
+          <img src={logo} alt="Ma! Anong ulam? Logo" className="h-32 -mt-7 -mb-5" />
         </Link>
-  
-        {/* Create Post Button and Profile Picture Dropdown Container */}
+
         <div className="flex items-center space-x-4">
-          {/* Create Post Button */}
-          <button className="bg-orange-400 font-recia text-white px-4 py-2 rounded hover:bg-red-900">
+          <button onClick={handleCreateRecipeClick} className="bg-orange-400 text-red-900 font-recia px-4 py-2 rounded hover:bg-red-900 hover:text-orange-400 transition duration-300">
             Create Recipe
           </button>
-  
-          {/* Profile Picture Dropdown */}
+
           <div className="relative">
             <button onClick={toggleDropdown} className="focus:outline-none">
-              <img
-                src="https://via.placeholder.com/40"
-                alt="Profile"
-                className="w-10 h-10 rounded-full"
-              />
+              <img src={profileDropDown} alt="Profile" className="w-10 h-10 rounded-full" />
             </button>
             {isDropdownOpen && (
               <ul className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48">
-                <li className="px-4 py-2 hover:bg-gray-100">
-                  <Link to="/account-settings" className="text-black">
-                    Account Settings
-                  </Link>
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
+                  <button onClick={() => navigate('/profile')} className="text-black">My Profile</button>
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100">
-                  <button onClick={handleLogout} className="text-red-500">
-                    Logout
-                  </button>
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
+                  <button onClick={handleAccountSettings} className="text-black">Account Settings</button>
+                </li>
+                <li className="px-4 py-2 hover:bg-gray-100 transition duration-300">
+                  <button onClick={handleLogout} className="text-red-500">Logout</button>
                 </li>
               </ul>
             )}
           </div>
         </div>
       </nav>
-  
-      {/* Main Content */}
+
       <main className="flex-grow">
-        <section
-          className="flex flex-col items-center justify-center h-64 bg-cover bg-center"
-          style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }} // Replace or keep the Unsplash image for this section
-        >
-          <h2 className="text-7xl text-black font-bold font-zina">
-            Discover. Delicious. Recipes.
-          </h2>
-          <p className="text-2xl text-black font-recia">
-            Is there anything specific you're craving today?
-          </p>
-          <SearchInput />
+        <section className="flex flex-col items-center justify-center h-64 bg-cover bg-center" style={{ backgroundImage: 'url("https://source.unsplash.com/random/800x600/?food")' }}>
+          <h2 className="text-7xl text-orange-400 font-bold font-zina">Discover. Delicious. Recipes.</h2>
+          <p className="text-2xl text-red-900 font-recia">Is there anything specific you're craving today?</p>
+          <SearchInput onSearchTypeChange={handleSearchTypeChange} /> {/* Pass handler to SearchInput */}
         </section>
         <CategoriesCarousel onCategorySelect={handleCategorySelect} />
-  
-        {/* Render RecipeDetail if recipeId is present */}
-        {recipeId ? (
-          <RecipeDetail recipeId={recipeId} />
+
+        {/* Conditionally render UserList or RecipeGrid based on searchType */}
+        {searchType === 'Users' ? (
+          <UserList searchTerm={searchType} /> 
         ) : (
-          <RecipeGrid
-            selectedCategoryId={selectedCategoryId}
-            onRecipeSelect={handleRecipeSelect}
-          />
+          <RecipeGrid selectedCategoryId={selectedCategoryId} onRecipeSelect={handleRecipeSelect} />
         )}
       </main>
-  
-      {/* Footer */}
-      <footer className="bg-white p-2 text-center shadow mt-4"
-      style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)'}}>
+
+      <footer className="bg-white p-2 text-center shadow mt-4" style={{ backgroundColor: 'rgba(211, 211, 211, 0.4)'}}>
         <p className="text-black">&copy; 2024 Kurimau. All rights reserved.</p>
       </footer>
-  
-      {/* Chat Popup Button */}
-      <button
-        onClick={toggleChat}
-        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 fixed bottom-5 right-5"
-      >
-        Chat
-      </button>
-  
-      {/* Chat Popup */}
-      {isChatOpen && (
-        <div className="fixed bottom-20 right-5 w-80 bg-white shadow-lg rounded-lg p-4">
-          <Chat />
-        </div>
+
+      {/* Modal for Creating Recipe */}
+      {isModalOpen && (
+        <Modal onClose={closeModal}>
+          <CreateRecipe onClose={closeModal} />
+        </Modal>
       )}
     </div>
   );
-  
 };
 
 export default Home;

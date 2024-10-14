@@ -21,7 +21,7 @@ export const registerUser = async (req, res) => {
   const { username, email, password, firstName, lastName, contactNumber } = req.body; // Include contactNumber
 
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -135,5 +135,22 @@ export const updateUser = async (req, res) => {
       res.status(200).json({ message: 'User updated successfully', user });
   } catch (error) {
       handleError(res, 'Error updating user', error);
+  }
+};
+
+// Get user by userId
+export const getUserById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      const user = await User.findOne({ userId });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      const { password, ...userDetails } = user.toObject();
+      res.status(200).json(userDetails);
+  } catch (error) {
+      handleError(res, 'Error fetching user', error);
   }
 };

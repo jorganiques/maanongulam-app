@@ -2,9 +2,17 @@ import Rating from '../models/Rating.js';
 
 // Create a new rating
 export const createRating = async (req, res) => {
-  const { userId, recipeId, rating, isLiked } = req.body; // Removed comment as it's not in the model
+  const { userId, recipeId, rating, isLiked } = req.body;
 
   try {
+    // Check if the user has already rated this recipe
+    const existingRating = await Rating.findOne({ userId, recipeId });
+    if (existingRating) {
+      existingRating.isLiked = isLiked;
+      await existingRating.save();
+      return res.status(200).json(existingRating); // Updated to return 200
+    }
+
     const newRating = new Rating({ userId, recipeId, rating, isLiked });
     await newRating.save();
     res.status(201).json(newRating);
@@ -30,11 +38,11 @@ export const getRatingsByRecipe = async (req, res) => {
 // Update a rating by ratingId
 export const updateRating = async (req, res) => {
   const { ratingId } = req.params;
-  const { rating, isLiked } = req.body; // Removed comment as it's not in the model
+  const { rating, isLiked } = req.body;
 
   try {
     const updatedRating = await Rating.findOneAndUpdate(
-      { ratingId },
+      { _id: ratingId },
       { rating, isLiked, lastUpdated: Date.now() }, // Update lastUpdated and isLiked
       { new: true }
     );
@@ -56,7 +64,7 @@ export const deleteRating = async (req, res) => {
 
   try {
     const deletedRating = await Rating.findOneAndUpdate(
-      { ratingId },
+      { _id: ratingId },
       { isDeleted: true }, // Set isDeleted to true
       { new: true }
     );
@@ -82,5 +90,49 @@ export const getLikesByRecipe = async (req, res) => {
   } catch (error) {
     console.error('Error fetching likes:', error);
     res.status(500).json({ message: 'Error fetching likes', error });
+  }
+};
+
+// Get the average rating for a specific recipe
+export const getAverageRating = async (req, res) => {
+  const { recipeId } = req.params;
+
+  try {
+    const ratings = await Rating.find({ recipeId, isDeleted: false }); // Ensure we only consider non-deleted ratings
+    if (ratings.length === 0) {
+      return res.status(200).json({ averageRating: 0 }); // Return 0 if no ratings exist
+    }
+    const avgRating = ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length;
+    res.status(200).json({ averageRating: avgRating });
+  } catch (error) {
+    console.error('Failed to fetch average rating:', error);
+    res.status(500).json({ error: 'Failed to fetch average rating.' });
+  }
+};
+
+// Toggle like/unlike for a recipe
+export const toggleLike = async (req, res) => {
+  const { userId, isLiked } = req.body;
+  const { recipeId } = req.params;
+
+  try {
+    // Check if the user has already rated the recipe
+    let rating = await Rating.findOne({ userId, recipeId });
+
+    if (rating) {
+      // If rating exists, update the isLiked field
+      rating.isLiked = isLiked;
+      rating.lastUpdated = Date.now();
+      await rating.save();
+    } else {
+      // If rating does not exist, create a new rating with isLiked
+      rating = new Rating({ userId, recipeId, isLiked });
+      await rating.save();
+    }
+
+    res.status(200).json({ message: 'Like status updated successfully', isLiked: rating.isLiked });
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ message: 'Error toggling like', error });
   }
 };

@@ -1,8 +1,9 @@
 // src/api/authApi.js
 export const authenticateUser = async (values, isLogin) => {
-    const url = isLogin 
-      ? 'http://localhost:5000/api/users/login' 
-      : 'http://localhost:5000/api/users/register';
+  const baseURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const url = isLogin 
+    ? `${baseURL}/api/users/login` 
+    : `${baseURL}/api/users/register`;
   
     const response = await fetch(url, {
       method: 'POST',

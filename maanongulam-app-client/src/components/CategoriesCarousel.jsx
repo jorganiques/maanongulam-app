@@ -4,11 +4,11 @@ import axios from 'axios';
 const CategoriesCarousel = ({ onCategorySelect }) => {
   const [categories, setCategories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const categoriesToShow = 6; // Number of categories to display at a time
+  const categoriesToShow = 5; // Number of categories to display at a time
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/categories`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -33,12 +33,12 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
 
   return (
     <div className="flex items-center justify-center my-4">
-      <button onClick={handlePrev} className="text-2xl">&lt;&lt;</button>
+      <button onClick={handlePrev} className="text-red-900 text-2xl ">&lt;&lt;</button>
       <div className="flex overflow-hidden w-full justify-around">
         {categories.slice(currentIndex, currentIndex + categoriesToShow).map((category) => (
           <div 
             key={category.categoryId} 
-            className="font-zina bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition-transform duration-300 cursor-pointer"
+            className="text-red-900 font-recia bg-white bg-opacity-30 hover:bg-opacity-80 rounded p-6 m-4 transition duration-300 cursor-pointer"
             onClick={() => handleCategoryClick(category.categoryId)} // Add onClick here
           >
             <h3 className="text-2xl font-semibold">{category.categoryName}</h3>
@@ -48,7 +48,7 @@ const CategoriesCarousel = ({ onCategorySelect }) => {
           </div>
         ))}
       </div>
-      <button onClick={handleNext} className="text-2xl">&gt;&gt;</button>
+      <button onClick={handleNext} className="text-red-900 text-2xl">&gt;&gt;</button>
     </div>
   );
 };

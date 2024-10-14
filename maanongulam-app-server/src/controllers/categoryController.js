@@ -2,10 +2,10 @@ import Category from '../models/Category.js';
 
 // Create a new category
 export const createCategory = async (req, res) => {
-  const { name, description } = req.body;
+  const { categoryId, categoryName, categoryDescription } = req.body; // Updated variable names
 
   try {
-    const category = new Category({ name, description });
+    const category = new Category({ categoryId, categoryName, categoryDescription }); // Use correct field names
     await category.save();
     res.status(201).json(category);
   } catch (error) {
@@ -23,15 +23,16 @@ export const getCategories = async (req, res) => {
   }
 };
 
-// Get a category by ID
+// Get a category by categoryId
 export const getCategoryById = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // Assuming id will contain the categoryId
 
   try {
-    const category = await Category.findById(id);
+    const category = await Category.findOne({ categoryId: id }); // Use findOne to search by categoryId
     if (!category) return res.status(404).json({ message: 'Category not found' });
     res.status(200).json(category);
   } catch (error) {
+    console.error('Error retrieving category:', error); // Log the error for debugging
     res.status(500).json({ message: 'Error retrieving category', error });
   }
 };
@@ -52,28 +53,36 @@ export const getCategoryByStrCategory = async (req, res) => {
 };
 
 // Update a category
+// Update a category
 export const updateCategory = async (req, res) => {
-  const { id } = req.params;
-  const { name, description } = req.body;
+  const { id } = req.params; // This should be the categoryId if you're using that for updates
+  const { categoryName, categoryDescription } = req.body; // Use the correct variable names
 
   try {
-    const category = await Category.findByIdAndUpdate(id, { name, description }, { new: true });
+    const category = await Category.findOneAndUpdate(
+      { categoryId: id }, // Ensure this is the correct identifier
+      { categoryName, categoryDescription },
+      { new: true }
+    );
+    
     if (!category) return res.status(404).json({ message: 'Category not found' });
     res.status(200).json(category);
   } catch (error) {
+    console.error('Error updating category:', error); // Log the error for debugging
     res.status(400).json({ message: 'Error updating category', error });
   }
 };
 
 // Delete a category
 export const deleteCategory = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // Make sure 'id' corresponds to categoryId, not MongoDB _id
 
   try {
-    const category = await Category.findByIdAndDelete(id);
+    const category = await Category.findOneAndDelete({ categoryId: id });
     if (!category) return res.status(404).json({ message: 'Category not found' });
     res.status(204).send(); // No content
   } catch (error) {
+    console.error('Error deleting category:', error); // Log the error for debugging
     res.status(500).json({ message: 'Error deleting category', error });
   }
 };

@@ -12,9 +12,6 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    // cloud_name: 'du8fsnwks',
-    // api_key: '525697365987875',
-    // api_secret: '0Q1WTEm_UK9BDEuVLIXVOp4Jn-Y',
 });
 
 // Set up multer storage
@@ -225,3 +222,31 @@ export const getRecipesByCategoryId = async (req, res) => {
         res.status(500).json({ message: 'Error fetching recipes', error: error.message });
     }
   };
+  
+
+  // Get 10 random recipes
+  export const getRandomRecipes = async (req, res) => {
+    try {
+      const recipes = await Recipe.aggregate([{ $match: { isDeleted: false } }, { $sample: { size: 10 } }]);
+      res.status(200).json(recipes);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching random recipes', error: error.message });
+    }
+  };
+  
+  // Get Recipes by User ID
+export const getRecipesByUserId = async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const recipes = await Recipe.find({ userId, isDeleted: false });
+      if (recipes.length === 0) {
+        return res.status(404).json({ message: 'No recipes found for this user' });
+      }
+      res.status(200).json(recipes);
+    } catch (error) {
+      console.error('Error fetching recipes by user ID:', error);
+      res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+    }
+  };
+  
